@@ -1,0 +1,80 @@
+@model CartVM
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+<nav class="breadcrumb"><a asp-controller="Home" asp-action="Index">Trang chủ</a> › <span>Giỏ hàng</span></nav>
+<div class="page-head"><h1>Giỏ hàng của bạn</h1></div>
+
+@if (Model.Items.Count == 0)
+{
+    <div class="empty card big">
+        <div class="empty-icon">🛒</div>
+        <p>Giỏ hàng của bạn đang trống</p>
+        <a class="btn btn-primary" asp-controller="Category" asp-action="Index">Tiếp tục mua sắm</a>
+    </div>
+}
+else
+{
+    <div class="cart-layout">
+        <div class="card cart-items">
+            @foreach (var i in Model.Items)
+            {
+                <div class="cart-row @(i.VuotTonKho ? "row-warn" : "")">
+                    <a asp-controller="Product" asp-action="Detail" asp-route-id="@i.MaSP" class="cart-img">@WebHelper.Anh(i.HinhAnh, i.TenSP, 0)</a>
+                    <div class="cart-info">
+                        <a class="product-name" asp-controller="Product" asp-action="Detail" asp-route-id="@i.MaSP">@i.TenSP</a>
+                        <div class="muted small">@i.TenDM · Đơn giá @WebHelper.Tien(i.DonGia)</div>
+                        @if (i.SoLuongTon <= 0)
+                        {
+                            <div class="text-bad small">Sản phẩm đã hết hàng – vui lòng xóa khỏi giỏ.</div>
+                        }
+                        else if (i.VuotTonKho)
+                        {
+                            <div class="text-bad small">Chỉ còn @i.SoLuongTon sản phẩm trong kho.</div>
+                        }
+                    </div>
+                    <form asp-action="Update" method="post" class="qty qty-sm js-qty-form">
+                        <input type="hidden" name="maSP" value="@i.MaSP" />
+                        <button type="button" class="qty-btn" data-step="-1">−</button>
+                        <input type="number" name="soLuong" value="@i.SoLuong" min="0" max="@Math.Max(i.SoLuongTon, 1)" />
+                        <button type="button" class="qty-btn" data-step="1">+</button>
+                        <noscript><button type="submit" class="btn btn-link">Cập nhật</button></noscript>
+                    </form>
+                    <div class="cart-total">@WebHelper.Tien(i.ThanhTien)</div>
+                    <form asp-action="Remove" method="post">
+                        <input type="hidden" name="maSP" value="@i.MaSP" />
+                        <button type="submit" class="icon-btn" title="Xóa khỏi giỏ">✕</button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <aside class="card summary">
+            <h3>Tóm tắt đơn hàng</h3>
+            <div class="sum-row"><span>Tạm tính</span><b>@WebHelper.Tien(Model.TamTinh)</b></div>
+
+            <div class="voucher-box">
+                <label class="lbl" for="voucher-code">Mã giảm giá</label>
+                <div class="input-group">
+                    <input type="text" id="voucher-code" value="@Model.MaGiamGia" placeholder="Nhập mã" maxlength="30" />
+                    <button type="button" class="btn btn-outline" id="voucher-apply" data-url="@Url.Action("ApplyVoucher", "Cart")">Áp dụng</button>
+                </div>
+                <div class="voucher-msg @(Model.TienGiam > 0 ? "ok" : "bad")" id="voucher-msg">@Model.ThongBaoMa</div>
+                @if (Model.MaGoiY.Count > 0)
+                {
+                    <div class="chips small">
+                        @foreach (var m in Model.MaGoiY)
+                        {
+                            <button type="button" class="chip js-voucher-chip" data-code="@m.Code" title="Giảm @m.PhanTramGiam%, tối đa @WebHelper.Tien(m.SoTienGiamToiDa), đơn từ @WebHelper.Tien(m.DonToiThieu)">@m.Code</button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="sum-row"><span>Giảm giá</span><b class="text-ok" id="sum-discount">- @WebHelper.Tien(Model.TienGiam)</b></div>
+            <div class="sum-row total"><span>Tổng cộng</span><b id="sum-total">@WebHelper.Tien(Model.TongCong)</b></div>
+            <a class="btn btn-primary btn-block btn-lg" asp-controller="Checkout" asp-action="Index">Tiến hành đặt hàng</a>
+            <a class="btn btn-link btn-block" asp-controller="Category" asp-action="Index">← Tiếp tục mua sắm</a>
+        </aside>
+    </div>
+}

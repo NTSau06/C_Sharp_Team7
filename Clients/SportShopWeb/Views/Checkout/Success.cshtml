@@ -1,0 +1,46 @@
+@model DonHangDTO
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+    bool canChuyenKhoan = Model.TenPTTT.Contains("Chuyển khoản") || Model.TenPTTT.Contains("MoMo");
+}
+<div class="card success">
+    <div class="success-icon">✓</div>
+    <h1>Đặt hàng thành công!</h1>
+    <p>Mã đơn hàng của bạn: <b class="order-code">#@("DH" + Model.MaDH)</b></p>
+    <p class="muted">Ngày đặt: @Model.NgayDat.ToString("dd/MM/yyyy HH:mm") · Trạng thái: <span class="status @TrangThaiDonHang.CssClass(Model.TrangThai)">@Model.TrangThai</span></p>
+
+    @if (canChuyenKhoan)
+    {
+        <div class="alert alert-info">
+            Bạn chọn <b>@Model.TenPTTT</b>. Vui lòng thanh toán <b>@WebHelper.Tien(Model.TongTien)</b> với nội dung
+            <b>@("DH" + Model.MaDH)</b>. Cửa hàng sẽ xác nhận đơn sau khi nhận được thanh toán.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Bạn chọn <b>@Model.TenPTTT</b>: thanh toán <b>@WebHelper.Tien(Model.TongTien)</b> khi nhận hàng.</div>
+    }
+
+    <table class="table">
+        <thead><tr><th>Sản phẩm</th><th class="num">SL</th><th class="num">Đơn giá</th><th class="num">Thành tiền</th></tr></thead>
+        <tbody>
+            @foreach (var ct in Model.ChiTiet)
+            {
+                <tr><td>@ct.TenSP</td><td class="num">@ct.SoLuong</td><td class="num">@WebHelper.Tien(ct.DonGia)</td><td class="num">@WebHelper.Tien(ct.ThanhTien)</td></tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="3">Tạm tính</td><td class="num">@WebHelper.Tien(Model.TamTinh)</td></tr>
+            @if (Model.TienGiam > 0)
+            {
+                <tr><td colspan="3">Giảm giá (@Model.CodeMGG)</td><td class="num text-ok">- @WebHelper.Tien(Model.TienGiam)</td></tr>
+            }
+            <tr class="total"><td colspan="3">Tổng thanh toán</td><td class="num">@WebHelper.Tien(Model.TongTien)</td></tr>
+        </tfoot>
+    </table>
+    <p class="muted small">Giao tới: @Model.DiaChiGiao</p>
+    <div class="row-gap center">
+        <a class="btn btn-primary" asp-controller="Account" asp-action="Orders">Xem đơn hàng của tôi</a>
+        <a class="btn btn-outline" asp-controller="Home" asp-action="Index">Tiếp tục mua sắm</a>
+    </div>
+</div>

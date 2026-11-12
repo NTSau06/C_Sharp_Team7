@@ -1,0 +1,89 @@
+@model ProductDetailVM
+@{
+    var sp = Model.SanPham;
+    ViewData["Title"] = sp.TenSP;
+    int toiDa = Math.Max(1, Math.Min(sp.SoLuongTon, SportShopWeb.BLL.GioHangBLL.SoLuongToiDaMoiSanPham));
+}
+<nav class="breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Trang chủ</a> ›
+    <a asp-controller="Category" asp-action="Products" asp-route-maDM="@sp.MaDM">@sp.TenDM</a> ›
+    <span>@sp.TenSP</span>
+</nav>
+
+<div class="detail card">
+    <div class="detail-img">
+        @WebHelper.Anh(sp.HinhAnh, sp.TenSP, sp.MaDM, "thumb-lg")
+    </div>
+    <div class="detail-info">
+        <div class="product-cat">@WebHelper.IconDanhMuc(sp.TenDM) @sp.TenDM · Mã SP: #@sp.MaSP</div>
+        <h1>@sp.TenSP</h1>
+        <div class="detail-price">@WebHelper.Tien(sp.GiaBan)</div>
+
+        <div class="stock">
+            @if (sp.HetHang)
+            {
+                <span class="tag tag-bad static">Hết hàng</span>
+            }
+            else if (sp.SapHetHang)
+            {
+                <span class="tag tag-warn static">Sắp hết hàng</span>
+                <span class="muted">Chỉ còn @sp.SoLuongTon sản phẩm</span>
+            }
+            else
+            {
+                <span class="tag tag-ok static">Còn hàng</span>
+                <span class="muted">@sp.SoLuongTon sản phẩm có sẵn</span>
+            }
+            @if (sp.DaBan > 0)
+            {
+                <span class="muted"> · Đã bán @sp.DaBan</span>
+            }
+        </div>
+
+        <form asp-controller="Cart" asp-action="Add" method="post" class="buy js-add-cart">
+            <input type="hidden" name="maSP" value="@sp.MaSP" />
+            <input type="hidden" name="returnUrl" value="@Url.Action("Detail", "Product", new { id = sp.MaSP })" />
+            <div class="qty">
+                <button type="button" class="qty-btn" data-step="-1" disabled="@sp.HetHang">−</button>
+                <input type="number" name="soLuong" value="1" min="1" max="@toiDa" disabled="@sp.HetHang" />
+                <button type="button" class="qty-btn" data-step="1" disabled="@sp.HetHang">+</button>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" disabled="@sp.HetHang">
+                @(sp.HetHang ? "Hết hàng" : "🛒 Thêm vào giỏ hàng")
+            </button>
+        </form>
+        @if (Model.TrongGio > 0)
+        {
+            <p class="muted small">Bạn đã có @Model.TrongGio sản phẩm này trong <a asp-controller="Cart" asp-action="Index">giỏ hàng</a>.</p>
+        }
+
+        <div class="detail-desc">
+            <h3>Mô tả sản phẩm</h3>
+            <p>@(string.IsNullOrWhiteSpace(sp.MoTa) ? "Đang cập nhật." : sp.MoTa)</p>
+            <table class="specs">
+                <tr><th>Danh mục</th><td>@sp.TenDM</td></tr>
+                <tr><th>Giá bán</th><td>@WebHelper.Tien(sp.GiaBan)</td></tr>
+                <tr><th>Tình trạng</th><td>@sp.TinhTrang</td></tr>
+                <tr><th>Số lượng tồn</th><td>@sp.SoLuongTon</td></tr>
+            </table>
+        </div>
+        <ul class="perks">
+            <li>🚚 Giao hàng toàn quốc</li>
+            <li>💳 COD / Chuyển khoản / MoMo</li>
+            <li>✅ Hàng chính hãng</li>
+        </ul>
+    </div>
+</div>
+
+@if (Model.LienQuan.Count > 0)
+{
+    <section class="section">
+        <h2>Sản phẩm cùng danh mục</h2>
+        <div class="grid">
+            @foreach (var item in Model.LienQuan)
+            {
+                <partial name="_ProductCard" model="item" />
+            }
+        </div>
+    </section>
+}

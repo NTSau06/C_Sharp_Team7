@@ -1,0 +1,13 @@
+@model ErrorVM
+@{
+    ViewData["Title"] = Model?.TieuDe ?? "Lỗi";
+}
+<div class="empty card big">
+    <div class="empty-icon">⚠️</div>
+    <h1>@(Model?.TieuDe ?? "Đã xảy ra lỗi")</h1>
+    <p>@(Model?.ThongBao ?? "Vui lòng thử lại sau.")</p>
+    <div class="row-gap">
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Về trang chủ</a>
+        <a class="btn btn-outline" href="javascript:location.reload()">Tải lại</a>
+    </div>
+</div>

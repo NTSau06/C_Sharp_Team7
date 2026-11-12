@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>SportShopWeb</RootNamespace>
+    <AssemblyName>SportShopWeb</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ADO.NET cho SQL Server (Visual Studio tự tải về khi Build) -->
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Dùng chung script tạo CSDL với phân hệ Admin: Web tự tạo SportShopDB nếu chưa có -->
+    <EmbeddedResource Include="..\..\Database\SportShopDB.sql" Link="Database\SportShopDB.sql" LogicalName="SportShopWeb.SportShopDB.sql" />
+  </ItemGroup>
+
+</Project>

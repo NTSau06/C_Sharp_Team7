@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Sản phẩm không tồn tại";
+}
+<div class="empty card big">
+    <div class="empty-icon">📦</div>
+    <h1>Sản phẩm không tồn tại</h1>
+    <p>Sản phẩm bạn tìm không hợp lệ hoặc đã bị xóa.</p>
+    <p class="muted small">Tự động quay về trang chủ sau <span id="countdown">5</span> giây...</p>
+    <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Về trang chủ</a>
+</div>
+@section Scripts {
+    <script>
+        (function () {
+            var n = 5, el = document.getElementById('countdown');
+            var t = setInterval(function () {
+                n--; el.textContent = n;
+                if (n <= 0) { clearInterval(t); location.href = '@Url.Action("Index", "Home")'; }
+            }, 1000);
+        })();
+    </script>
+}

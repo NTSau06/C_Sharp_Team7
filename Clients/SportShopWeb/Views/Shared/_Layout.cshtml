@@ -1,0 +1,108 @@
+@{
+    List<DanhMucDTO> menuDanhMuc = new List<DanhMucDTO>();
+    int soLuongGio = 0;
+    int? maKH = User.MaKH();
+    try
+    {
+        menuDanhMuc = new SportShopWeb.BLL.DanhMucBLL().GetAll();
+        if (maKH.HasValue) { soLuongGio = new SportShopWeb.BLL.GioHangBLL().DemSoLuong(maKH.Value); }
+    }
+    catch { /* CSDL chưa sẵn sàng: vẫn hiển thị khung trang */ }
+    string tuKhoa = Context.Request.Query["q"].ToString();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] == null ? "" : ViewData["Title"] + " - ")Sport Shop</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <form id="af-token" hidden>@Html.AntiForgeryToken()</form>
+
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a class="logo" asp-controller="Home" asp-action="Index"><span class="logo-mark">S</span>SPORT<b>SHOP</b></a>
+
+            <form class="search" asp-controller="Search" asp-action="Index" method="get" autocomplete="off" id="search-form">
+                <input type="text" name="q" id="search-input" value="@tuKhoa" placeholder="Tìm sản phẩm, danh mục..." maxlength="100" />
+                <button type="submit" title="Tìm kiếm" aria-label="Tìm kiếm">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M10 2a8 8 0 0 1 6.32 12.9l5.39 5.4-1.41 1.41-5.4-5.39A8 8 0 1 1 10 2Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/></svg>
+                </button>
+                <div class="suggest" id="search-suggest" hidden></div>
+                <div class="search-msg" id="search-msg" hidden>Vui lòng nhập từ khóa tìm kiếm</div>
+            </form>
+
+            <nav class="user-nav">
+                @if (maKH.HasValue)
+                {
+                    <div class="dropdown">
+                        <button class="nav-link" type="button" data-toggle="dropdown">👤 <span class="hide-sm">@User.HoTen()</span> ▾</button>
+                        <div class="dropdown-menu">
+                            <a asp-controller="Account" asp-action="Orders">Đơn hàng của tôi</a>
+                            <form asp-controller="Account" asp-action="Logout" method="post"><button type="submit">Đăng xuất</button></form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                    <a class="nav-link hide-sm" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                }
+                <a class="cart-link" asp-controller="Cart" asp-action="Index" title="Giỏ hàng">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7 18a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm10 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4ZM1 2h3.3l.94 2H21a1 1 0 0 1 .96 1.27l-2.5 9A1 1 0 0 1 18.5 15H8.1l-.9 2H19v2H5.6a1 1 0 0 1-.9-1.45L6.2 14.6 3 4H1V2Z"/></svg>
+                    <span class="badge" id="cart-count" style="@(soLuongGio == 0 ? "display:none" : "")">@soLuongGio</span>
+                </a>
+            </nav>
+        </div>
+        <nav class="catbar">
+            <div class="container catbar-inner">
+                <a asp-controller="Category" asp-action="Index" class="catbar-all">☰ Tất cả danh mục</a>
+                @foreach (var dm in menuDanhMuc)
+                {
+                    <a asp-controller="Category" asp-action="Products" asp-route-maDM="@dm.MaDM">@WebHelper.IconDanhMuc(dm.TenDM) @dm.TenDM</a>
+                }
+            </div>
+        </nav>
+    </header>
+
+    <main class="container main">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-ok">@TempData["Success"]</div>
+        }
+        @if (TempData["Warn"] != null)
+        {
+            <div class="alert alert-warn">@TempData["Warn"]</div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div>
+                <div class="logo logo-sm"><span class="logo-mark">S</span>SPORT<b>SHOP</b></div>
+                <p>Hệ thống quản lý và bán dụng cụ thể thao – Nhóm 7, Trường Đại học Sài Gòn.</p>
+            </div>
+            <div>
+                <h4>Mua sắm</h4>
+                <a asp-controller="Category" asp-action="Index">Danh mục sản phẩm</a>
+                <a asp-controller="Cart" asp-action="Index">Giỏ hàng</a>
+                <a asp-controller="Account" asp-action="Orders">Đơn hàng của tôi</a>
+            </div>
+            <div>
+                <h4>Hỗ trợ</h4>
+                <span>Giao hàng toàn quốc</span>
+                <span>Thanh toán COD / chuyển khoản / MoMo</span>
+                <a asp-controller="Home" asp-action="About">Giới thiệu</a>
+            </div>
+        </div>
+        <div class="copy">© @DateTime.Now.Year Sport Shop</div>
+    </footer>
+
+    <div class="toast" id="toast" hidden></div>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
