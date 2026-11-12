@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8E3C2A51-6F4B-4D2E-9A7C-1B5D3E9F0A42}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>SportShopAdmin</RootNamespace>
+    <AssemblyName>SportShopAdmin</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BLL\BusinessException.cs" />
+    <Compile Include="BLL\DanhMucBLL.cs" />
+    <Compile Include="BLL\DonHangBLL.cs" />
+    <Compile Include="BLL\KhachHangBLL.cs" />
+    <Compile Include="BLL\KhoBLL.cs" />
+    <Compile Include="BLL\MaGiamGiaBLL.cs" />
+    <Compile Include="BLL\SanPhamBLL.cs" />
+    <Compile Include="BLL\TaiKhoanBLL.cs" />
+    <Compile Include="BLL\ThongKeBLL.cs" />
+    <Compile Include="DAL\DBConnect.cs" />
+    <Compile Include="DAL\DatabaseInitializer.cs" />
+    <Compile Include="DAL\DanhMucDAL.cs" />
+    <Compile Include="DAL\DonHangDAL.cs" />
+    <Compile Include="DAL\KhachHangDAL.cs" />
+    <Compile Include="DAL\KhoDAL.cs" />
+    <Compile Include="DAL\MaGiamGiaDAL.cs" />
+    <Compile Include="DAL\QuanTriVienDAL.cs" />
+    <Compile Include="DAL\SanPhamDAL.cs" />
+    <Compile Include="DAL\ThongKeDAL.cs" />
+    <Compile Include="DTO\ApDungMaResult.cs" />
+    <Compile Include="DTO\ChiTietDonHangDTO.cs" />
+    <Compile Include="DTO\ChiTietPhieuNhapDTO.cs" />
+    <Compile Include="DTO\DanhMucDTO.cs" />
+    <Compile Include="DTO\DonHangDTO.cs" />
+    <Compile Include="DTO\KhachHangDTO.cs" />
+    <Compile Include="DTO\LichSuKhoDTO.cs" />
+    <Compile Include="DTO\MaGiamGiaDTO.cs" />
+    <Compile Include="DTO\PhieuNhapKhoDTO.cs" />
+    <Compile Include="DTO\PhuongThucThanhToanDTO.cs" />
+    <Compile Include="DTO\QuanTriVienDTO.cs" />
+    <Compile Include="DTO\SanPhamDTO.cs" />
+    <Compile Include="DTO\ThongKeDTO.cs" />
+    <Compile Include="DTO\TrangThaiDonHang.cs" />
+    <Compile Include="GUI\UiHelper.cs" />
+    <Compile Include="GUI\frmDangNhap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmDanhMuc.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmDonHang.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmKhachHang.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmMaGiamGia.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmSanPham.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmThongKe.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmTonKho.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\frmTrangChu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\ImageHelper.cs" />
+    <Compile Include="Utils\PasswordHasher.cs" />
+    <Compile Include="Utils\ReportExporter.cs" />
+    <Compile Include="Utils\Session.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Script tạo CSDL được nhúng vào .exe để chương trình tự tạo SportShopDB khi chưa có -->
+    <EmbeddedResource Include="..\..\Database\SportShopDB.sql">
+      <Link>Database\SportShopDB.sql</Link>
+      <LogicalName>SportShopAdmin.SportShopDB.sql</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
