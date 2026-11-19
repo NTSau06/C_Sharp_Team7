@@ -1,0 +1,106 @@
+@model HomeVM
+@{
+    ViewData["Title"] = "Trang chủ";
+    // Mã nổi bật trên banner: mã giảm nhiều nhất trong các mã đang hiệu lực
+    MaGiamGiaDTO maNoiBat = Model.KhuyenMai.OrderByDescending(m => m.PhanTramGiam).FirstOrDefault();
+}
+
+@* ---------------- Thành phần 2: Banner khuyến mãi (nền: wwwroot/images/banners/banner-khuyen-mai.svg) *@
+<section class="banner" aria-label="Khuyến mãi">
+    <div class="banner-text">
+        <span class="banner-kicker">🔥 Ưu đãi mùa thể thao</span>
+        <h1>Dụng cụ thể thao chính hãng – sẵn sàng cho mọi trận đấu</h1>
+        <p>Bóng đá, cầu lông, gym, chạy bộ, bơi lội... Đặt hàng nhanh, giao tận nơi, thanh toán khi nhận hàng (COD).</p>
+        @if (maNoiBat != null)
+        {
+            <div class="banner-code">
+                <span>Nhập mã <b>@maNoiBat.Code</b> giảm @maNoiBat.PhanTramGiam% (tối đa @WebHelper.Tien(maNoiBat.SoTienGiamToiDa))</span>
+                <button type="button" class="btn btn-yellow btn-sm" data-copy="@maNoiBat.Code">📋 Sao chép mã</button>
+            </div>
+        }
+        <div class="row-gap">
+            <a class="btn btn-yellow" asp-controller="Category" asp-action="Index">Mua sắm ngay</a>
+            <a class="btn btn-ghost" asp-controller="Search" asp-action="Index" asp-route-q="bóng">Tìm "bóng"</a>
+        </div>
+    </div>
+</section>
+
+@if (!string.IsNullOrEmpty(Model.ThongBao))
+{
+    <div class="empty card section">
+        <div class="empty-icon">⚠️</div>
+        <p>@Model.ThongBao</p>
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Tải lại</a>
+    </div>
+}
+
+@* ---------------- Mã giảm giá đang hoạt động *@
+@if (Model.KhuyenMai.Count > 0)
+{
+    <section class="section">
+        <h2>🎟️ Mã giảm giá đang có</h2>
+        <div class="vouchers">
+            @foreach (var m in Model.KhuyenMai)
+            {
+                <div class="voucher">
+                    <div class="voucher-pct">-@m.PhanTramGiam%</div>
+                    <div class="voucher-body">
+                        <b class="voucher-code">@m.Code</b>
+                        <div class="muted small">Giảm tối đa @WebHelper.Tien(m.SoTienGiamToiDa) · Đơn từ @WebHelper.Tien(m.DonToiThieu)</div>
+                        <div class="muted small">HSD: @m.NgayKetThuc.ToString("dd/MM/yyyy") · Còn @(m.SoLuotToiDa - m.SoLuotDaDung) lượt</div>
+                        <button type="button" class="btn btn-outline btn-sm" data-copy="@m.Code" title="Sao chép mã @m.Code">📋 Sao chép mã</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+@* ---------------- Thành phần 3: Danh mục (ảnh: wwwroot/images/categories) *@
+<section class="section">
+    <div class="section-head">
+        <h2>Danh mục sản phẩm</h2>
+        <a asp-controller="Category" asp-action="Index">Xem tất cả ›</a>
+    </div>
+    <div class="cats">
+        @foreach (var dm in Model.DanhMucs)
+        {
+            <a class="cat" asp-controller="Category" asp-action="Products" asp-route-maDM="@dm.MaDM" style="--c:@WebHelper.MauDanhMuc(dm.MaDM)">
+                <img class="cat-img" src="@WebHelper.AnhDanhMuc(dm.TenDM)" alt="@dm.TenDM" loading="lazy" />
+                <span class="cat-name">@dm.TenDM</span>
+                <span class="muted small">@dm.SoSanPham sản phẩm</span>
+            </a>
+        }
+    </div>
+</section>
+
+@* ---------------- Thành phần 4: Sản phẩm bán chạy (lưới 4 cột) *@
+@if (Model.BanChay.Count > 0)
+{
+    <section class="section">
+        <div class="section-head">
+            <h2>🔥 Sản phẩm bán chạy</h2>
+            <a asp-controller="Category" asp-action="Index">Xem thêm ›</a>
+        </div>
+        <div class="grid">
+            @foreach (var sp in Model.BanChay)
+            {
+                <partial name="_ProductCard" model="sp" />
+            }
+        </div>
+    </section>
+}
+
+@* ---------------- Thành phần 5: Sản phẩm mới (lưới 4 cột) *@
+<section class="section">
+    <div class="section-head">
+        <h2>✨ Sản phẩm mới</h2>
+        <a asp-controller="Category" asp-action="Index">Xem thêm ›</a>
+    </div>
+    <div class="grid">
+        @foreach (var sp in Model.MoiNhat)
+        {
+            <partial name="_ProductCard" model="sp" />
+        }
+    </div>
+</section>

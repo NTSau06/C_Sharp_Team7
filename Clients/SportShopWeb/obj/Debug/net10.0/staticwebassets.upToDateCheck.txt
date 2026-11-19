@@ -1,6 +1,0 @@
-wwwroot\css\site.css
-wwwroot\images\README.txt
-wwwroot\js\site.js
-C:\Users\DELL\Desktop\C_Sharp_Team7\Clients\SportShopWeb\wwwroot\css\site.css
-C:\Users\DELL\Desktop\C_Sharp_Team7\Clients\SportShopWeb\wwwroot\images\README.txt
-C:\Users\DELL\Desktop\C_Sharp_Team7\Clients\SportShopWeb\wwwroot\js\site.js

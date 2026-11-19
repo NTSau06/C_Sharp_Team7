@@ -1,0 +1,25 @@
+@model LoginVM
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+<div class="auth card">
+    <h1>Đăng nhập</h1>
+    <p class="muted">Đăng nhập để thêm vào giỏ hàng và đặt hàng.</p>
+    <form asp-action="Login" method="post" novalidate>
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-warn"></div>
+        <div class="field">
+            <label asp-for="TenDangNhap"></label>
+            <input asp-for="TenDangNhap" autofocus required autocomplete="username" />
+            <span asp-validation-for="TenDangNhap" class="field-err"></span>
+        </div>
+        <div class="field">
+            <label asp-for="MatKhau"></label>
+            <input asp-for="MatKhau" required autocomplete="current-password" />
+            <span asp-validation-for="MatKhau" class="field-err"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Đăng nhập</button>
+    </form>
+    <p class="center">Chưa có tài khoản? <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">Đăng ký ngay</a></p>
+    <p class="muted small center">Tài khoản mẫu: <code>nguyenvana</code> / <code>123456</code></p>
+</div>

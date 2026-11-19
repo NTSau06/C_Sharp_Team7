@@ -1,0 +1,15 @@
+# ===== File do Visual Studio / .NET tự sinh khi build - KHÔNG nộp, KHÔNG đẩy lên Git =====
+.vs/
+.vscode/
+bin/
+obj/
+*.user
+*.suo
+*.slnLaunch.user
+*.cache
+TestResults/
+
+# File tạm của Office / Windows
+~$*
+Thumbs.db
+Desktop.ini

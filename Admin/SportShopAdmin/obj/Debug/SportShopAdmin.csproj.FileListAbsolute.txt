@@ -1,7 +1,0 @@
-C:\Users\DELL\Desktop\C_Sharp_Team7\Admin\SportShopAdmin\bin\Debug\SportShopAdmin.exe.config
-C:\Users\DELL\Desktop\C_Sharp_Team7\Admin\SportShopAdmin\bin\Debug\SportShopAdmin.exe
-C:\Users\DELL\Desktop\C_Sharp_Team7\Admin\SportShopAdmin\bin\Debug\SportShopAdmin.pdb
-C:\Users\DELL\Desktop\C_Sharp_Team7\Admin\SportShopAdmin\obj\Debug\SportShopAdmin.csproj.AssemblyReference.cache
-C:\Users\DELL\Desktop\C_Sharp_Team7\Admin\SportShopAdmin\obj\Debug\SportShopAdmin.csproj.CoreCompileInputs.cache
-C:\Users\DELL\Desktop\C_Sharp_Team7\Admin\SportShopAdmin\obj\Debug\SportShopAdmin.exe
-C:\Users\DELL\Desktop\C_Sharp_Team7\Admin\SportShopAdmin\obj\Debug\SportShopAdmin.pdb
