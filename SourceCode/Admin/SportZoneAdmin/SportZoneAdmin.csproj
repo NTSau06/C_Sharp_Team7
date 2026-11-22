@@ -79,6 +79,9 @@
     <Compile Include="DTO\SanPhamDTO.cs" />
     <Compile Include="DTO\ThongKeDTO.cs" />
     <Compile Include="DTO\TrangThaiDonHang.cs" />
+    <Compile Include="GUI\Controls.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GUI\UiHelper.cs" />
     <Compile Include="GUI\frmDangNhap.cs">
       <SubType>Form</SubType>

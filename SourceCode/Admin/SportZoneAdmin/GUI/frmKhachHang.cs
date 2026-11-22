@@ -119,7 +119,7 @@ namespace SportZoneAdmin.GUI
             currentId = kh.MaKH;
             lblMa.Text = kh.MaKH.ToString();
             lblTrangThai.Text = kh.TrangThaiText;
-            lblTrangThai.ForeColor = kh.TrangThai ? UiHelper.Primary : UiHelper.Danger;
+            lblTrangThai.ForeColor = kh.TrangThai ? UiHelper.Success : UiHelper.Danger;
             txtHoTen.Text = kh.HoTen;
             txtTDN.Text = kh.TenDangNhap;
             txtMK.Clear();

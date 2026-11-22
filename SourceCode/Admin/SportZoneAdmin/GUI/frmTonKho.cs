@@ -130,6 +130,7 @@ namespace SportZoneAdmin.GUI
                 if (tabs.SelectedTab == tabPN && gridPN.DataSource == null) LoadPhieuNhap();
                 if (tabs.SelectedTab == tabLS && gridLS.DataSource == null) LoadLichSu();
             };
+            UiHelper.StyleTabs(tabs);
             Controls.Add(tabs);
         }
 
