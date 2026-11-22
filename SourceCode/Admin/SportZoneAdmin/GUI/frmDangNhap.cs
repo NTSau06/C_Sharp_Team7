@@ -69,8 +69,10 @@ namespace SportZoneAdmin.GUI
             {
                 Text = "Tạo lại CSDL mẫu (xóa dữ liệu hiện tại)",
                 Dock = DockStyle.Bottom,
-                Height = 26,
-                TextAlign = ContentAlignment.MiddleCenter
+                Height = 30,
+                TextAlign = ContentAlignment.MiddleCenter,
+                // Gạch chân thường trực đè lên dấu nặng (ạ, ệ...) làm chữ trông như thiếu dấu -> chỉ gạch chân khi rê chuột
+                LinkBehavior = LinkBehavior.HoverUnderline
             };
             lnkTaoLai.LinkClicked += LnkTaoLai_LinkClicked;
 
