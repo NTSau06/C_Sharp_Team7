@@ -8,7 +8,7 @@ namespace SportShopAdmin.DAL
 {
     public class ThongKeDAL
     {
-        private const string DaGiao = "N'Đã giao'";
+        private const string DaGiao = "N'Đã giao hàng'";
 
         private static string KyExpression(KieuThongKe kieu)
         {
@@ -27,7 +27,7 @@ namespace SportShopAdmin.DAL
             }
         }
 
-        /// <summary>Doanh thu các đơn "Đã giao" gom theo kỳ (chỉ những kỳ có phát sinh)</summary>
+        /// <summary>Doanh thu các đơn "Đã giao hàng" gom theo kỳ (chỉ những kỳ có phát sinh)</summary>
         public List<DoanhThuDTO> DoanhThuTheoKy(DateTime tuNgay, DateTime denNgay, KieuThongKe kieu)
         {
             string ky = KyExpression(kieu);
@@ -70,6 +70,14 @@ namespace SportShopAdmin.DAL
                           "JOIN DanhMuc dm ON dm.MaDM = sp.MaDM " +
                           where + "GROUP BY dm.MaDM, dm.TenDM ORDER BY DoanhThuGop DESC";
                     break;
+                case TieuChiBaoCao.MaGiamGia:
+                    // UC 1.2.6.2: doanh thu theo mã giảm giá; đơn không dùng mã gom vào một dòng riêng
+                    sql = "SELECT ISNULL(m.Code, N'(Không dùng mã)') AS Nhom, COUNT(*) AS SoDon, SUM(ISNULL(s.SL, 0)) AS SoLuongBan, " +
+                          "SUM(dh.TongTien + dh.TienGiam) AS DoanhThuGop, SUM(dh.TienGiam) AS ChietKhau " +
+                          "FROM DonHang dh LEFT JOIN MaGiamGia m ON m.MaMGG = dh.MaMGG " +
+                          "LEFT JOIN (SELECT MaDH, SUM(SoLuong) AS SL FROM ChiTietDonHang GROUP BY MaDH) s ON s.MaDH = dh.MaDH " +
+                          where + "GROUP BY m.MaMGG, m.Code ORDER BY DoanhThuGop DESC";
+                    break;
                 case TieuChiBaoCao.KhachHang:
                     sql = "SELECT kh.HoTen + ' (' + kh.TenDangNhap + ')' AS Nhom, COUNT(*) AS SoDon, SUM(ISNULL(s.SL, 0)) AS SoLuongBan, " +
                           "SUM(dh.TongTien + dh.TienGiam) AS DoanhThuGop, SUM(dh.TienGiam) AS ChietKhau " +
@@ -104,7 +112,7 @@ namespace SportShopAdmin.DAL
         public TongQuanDTO TongQuan()
         {
             string sql =
-                "SELECT (SELECT COUNT(*) FROM DonHang WHERE TrangThai IN (N'Chờ xác nhận', N'Chờ thanh toán')) AS DonCho, " +
+                "SELECT (SELECT COUNT(*) FROM DonHang WHERE TrangThai = N'Chờ xác nhận') AS DonCho, " +
                 "       (SELECT COUNT(*) FROM SanPham WHERE SoLuongTon <= MucTonToiThieu) AS SapHet, " +
                 "       (SELECT ISNULL(SUM(TongTien), 0) FROM DonHang WHERE TrangThai = " + DaGiao +
                 "          AND NgayDat >= DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)) AS DoanhThuThang, " +

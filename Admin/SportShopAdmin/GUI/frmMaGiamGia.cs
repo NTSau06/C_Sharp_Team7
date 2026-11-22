@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using SportShopAdmin.BLL;
@@ -23,6 +24,9 @@ namespace SportShopAdmin.GUI
         private readonly Label lblDaDung;
         private readonly CheckBox chkKichHoat;
         private int currentId;
+
+        private readonly ErrorProvider ep;
+        private readonly Dictionary<string, Control> errFields;
 
         public frmMaGiamGia()
         {
@@ -54,6 +58,13 @@ namespace SportShopAdmin.GUI
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
                 Text = "Số tiền giảm = min(tạm tính × % giảm, giảm tối đa).\nMã đã dùng trong đơn hàng chỉ có thể vô hiệu hóa."
             });
+
+            ep = UiHelper.MakeErrorProvider(this);
+            errFields = new Dictionary<string, Control>
+            {
+                { "Code", txtCode }, { "PhanTramGiam", numPT }, { "SoTienGiamToiDa", numMax }, { "DonToiThieu", numMin },
+                { "NgayKetThuc", dtKT }, { "SoLuotToiDa", numLuot }
+            };
 
             Button btnNew = UiHelper.MakeButton("Thêm mới", UiHelper.Blue, 110);
             Button btnSave = UiHelper.MakeButton("Lưu", UiHelper.Primary, 90);
@@ -154,7 +165,7 @@ namespace SportShopAdmin.GUI
             };
             bool isNew = currentId == 0;
             int id = 0;
-            if (!UiHelper.Try(this, () => id = bll.Save(m))) return;
+            if (!UiHelper.TrySave(this, ep, errFields, () => id = bll.Save(m))) return;
             UiHelper.Info(this, isNew ? "Đã tạo mã giảm giá mới." : "Đã cập nhật mã giảm giá.");
             LoadData();
             SelectRow(id);

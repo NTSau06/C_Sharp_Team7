@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using SportShopAdmin.DAL;
 using SportShopAdmin.DTO;
-using SportShopAdmin.Utils;
 
 namespace SportShopAdmin.BLL
 {
@@ -17,8 +15,8 @@ namespace SportShopAdmin.BLL
             return dal.GetTonKho(keyword, chiSapHet);
         }
 
-        /// <summary>Lập phiếu nhập: ghi phiếu + chi tiết và cộng dồn tồn kho trong một transaction. Trả về MaPN.</summary>
-        public int LapPhieuNhap(PhieuNhapKhoDTO pn)
+        /// <summary>Lập phiếu nhập: ghi phiếu + chi tiết và cộng dồn tồn kho trong một transaction. maQTV: người lập phiếu (Admin). Trả về MaPN.</summary>
+        public int LapPhieuNhap(PhieuNhapKhoDTO pn, int maQTV)
         {
             List<ChiTietPhieuNhapDTO> items = pn.GetChiTiet();
             if (items.Count == 0) throw new BusinessException("Phiếu nhập phải có ít nhất một sản phẩm.");
@@ -31,7 +29,7 @@ namespace SportShopAdmin.BLL
                 throw new BusinessException("Một sản phẩm chỉ được xuất hiện một lần trong phiếu nhập.");
 
             pn.GhiChu = (pn.GhiChu ?? "").Trim();
-            pn.MaQTV = Session.MaQTV;
+            pn.MaQTV = maQTV;
             pn.TongTienNhap = items.Sum(x => x.ThanhTien);
 
             return DBConnect.RunInTransaction(t =>

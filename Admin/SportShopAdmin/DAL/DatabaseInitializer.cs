@@ -25,6 +25,8 @@ namespace SportShopAdmin.DAL
         {
             ".",
             @".\SQLEXPRESS",
+            @".\SQLEXPRESS01",
+            @".\SQLEXPRESS02",
             @"(localdb)\MSSQLLocalDB",
             "localhost",
             @"localhost\SQLEXPRESS"
@@ -105,9 +107,38 @@ namespace SportShopAdmin.DAL
         /// <summary>Tạo CSDL nếu chưa có. Trả về true nếu vừa tạo mới.</summary>
         public static bool EnsureDatabase(string server)
         {
-            if (DatabaseReady(server)) return false;
+            if (DatabaseReady(server))
+            {
+                UpgradeSchema(server);
+                return false;
+            }
             CreateDatabase(server);
             return true;
+        }
+
+        /// <summary>
+        /// Nâng cấp CSDL tạo từ script cũ cho khớp 6 trạng thái chuẩn hóa (báo cáo mục 2.7.2):
+        /// "Đã giao" → "Đã giao hàng", "Chờ thanh toán" → "Chờ xác nhận", cập nhật CHECK constraint.
+        /// Chạy lại nhiều lần không ảnh hưởng.
+        /// </summary>
+        public static void UpgradeSchema(string server)
+        {
+            const string sql =
+                "USE " + DatabaseName + ";\n" +
+                "IF EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = 'CK_DH_TrangThai' " +
+                "           AND definition LIKE N'%Chờ thanh toán%')\n" +
+                "BEGIN\n" +
+                "  ALTER TABLE DonHang DROP CONSTRAINT CK_DH_TrangThai;\n" +
+                "  UPDATE DonHang SET TrangThai = N'Đã giao hàng' WHERE TrangThai = N'Đã giao';\n" +
+                "  UPDATE DonHang SET TrangThai = N'Chờ xác nhận' WHERE TrangThai = N'Chờ thanh toán';\n" +
+                "  ALTER TABLE DonHang ADD CONSTRAINT CK_DH_TrangThai CHECK (TrangThai IN (N'Chờ xác nhận', N'Đã xác nhận', " +
+                "        N'Đang giao', N'Đã giao hàng', N'Giao thất bại', N'Đã hủy'));\n" +
+                "END";
+            using (var conn = new SqlConnection(MasterConnectionString(server)))
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(sql, conn)) { cmd.CommandTimeout = 60; cmd.ExecuteNonQuery(); }
+            }
         }
 
         /// <summary>Xóa (nếu có) và tạo lại toàn bộ CSDL + dữ liệu mẫu từ script.</summary>

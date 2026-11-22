@@ -1,9 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportShopAdmin", "Admin\SportShopAdmin\SportShopAdmin.csproj", "{8E3C2A51-6F4B-4D2E-9A7C-1B5D3E9F0A42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportShop.Core", "SportShop.Core\SportShop.Core.csproj", "{1A2B3C4D-5E6F-4A8B-9C0D-1E2F3A4B5C6D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{5B1E7C3D-2A4F-4C8E-9D6B-3F0A1E2C4D5B}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,6 +22,10 @@ Global
 		{8E3C2A51-6F4B-4D2E-9A7C-1B5D3E9F0A42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E3C2A51-6F4B-4D2E-9A7C-1B5D3E9F0A42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E3C2A51-6F4B-4D2E-9A7C-1B5D3E9F0A42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2B3C4D-5E6F-4A8B-9C0D-1E2F3A4B5C6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2B3C4D-5E6F-4A8B-9C0D-1E2F3A4B5C6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2B3C4D-5E6F-4A8B-9C0D-1E2F3A4B5C6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2B3C4D-5E6F-4A8B-9C0D-1E2F3A4B5C6D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

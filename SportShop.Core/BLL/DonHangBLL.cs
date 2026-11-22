@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using SportShopAdmin.DAL;
 using SportShopAdmin.DTO;
-using SportShopAdmin.Utils;
 
 namespace SportShopAdmin.BLL
 {
@@ -34,10 +32,9 @@ namespace SportShopAdmin.BLL
             return dal.GetChiTiet(maDH);
         }
 
-        /// <summary>Xác nhận đơn: kiểm tra và trừ tồn kho trong cùng một transaction</summary>
-        public void XacNhan(int maDH)
+        /// <summary>Xác nhận đơn: kiểm tra và trừ tồn kho trong cùng một transaction. maQTV: người xác nhận (Admin).</summary>
+        public void XacNhan(int maDH, int maQTV)
         {
-            int maQTV = Session.MaQTV;
             DBConnect.RunInTransaction(t =>
             {
                 DonHangDTO dh = dal.GetForUpdate(t, maDH);
@@ -56,12 +53,11 @@ namespace SportShopAdmin.BLL
             });
         }
 
-        /// <summary>Hủy / từ chối đơn đang chờ: lưu lý do, hoàn lượt mã giảm giá (nếu có)</summary>
-        public void Huy(int maDH, string lyDo)
+        /// <summary>Hủy / từ chối đơn đang chờ: lưu lý do, hoàn lượt mã giảm giá (nếu có). maQTV: người hủy (Admin).</summary>
+        public void Huy(int maDH, string lyDo, int maQTV)
         {
             lyDo = (lyDo ?? "").Trim();
             if (lyDo == "") throw new BusinessException("Vui lòng nhập lý do hủy đơn.");
-            int maQTV = Session.MaQTV;
             DBConnect.RunInTransaction(t =>
             {
                 DonHangDTO dh = dal.GetForUpdate(t, maDH);
@@ -73,23 +69,25 @@ namespace SportShopAdmin.BLL
             });
         }
 
-        /// <summary>Các trạng thái giao hàng có thể chuyển tới từ trạng thái hiện tại</summary>
+        /// <summary>
+        /// Các trạng thái giao hàng có thể chuyển tới từ trạng thái hiện tại (Bảng 2.35):
+        /// Đã xác nhận → Đang giao; Đang giao → Đã giao hàng / Giao thất bại.
+        /// </summary>
         public static string[] TrangThaiTiepTheo(string hienTai)
         {
             if (hienTai == TrangThaiDonHang.DaXacNhan)
-                return new[] { TrangThaiDonHang.DangGiao, TrangThaiDonHang.DaGiao, TrangThaiDonHang.GiaoThatBai };
+                return new[] { TrangThaiDonHang.DangGiao };
             if (hienTai == TrangThaiDonHang.DangGiao)
                 return new[] { TrangThaiDonHang.DaGiao, TrangThaiDonHang.GiaoThatBai };
             return new string[0];
         }
 
-        /// <summary>Cập nhật giao hàng; "Giao thất bại" bắt buộc lý do và hoàn lại tồn kho</summary>
-        public void CapNhatGiaoHang(int maDH, string trangThaiMoi, string lyDo)
+        /// <summary>Cập nhật giao hàng; "Giao thất bại" bắt buộc lý do và hoàn lại tồn kho. maQTV: người cập nhật (Admin).</summary>
+        public void CapNhatGiaoHang(int maDH, string trangThaiMoi, string lyDo, int maQTV)
         {
             lyDo = (lyDo ?? "").Trim();
             if (trangThaiMoi == TrangThaiDonHang.GiaoThatBai && lyDo == "")
                 throw new BusinessException("Vui lòng nhập lý do giao hàng thất bại.");
-            int maQTV = Session.MaQTV;
             DBConnect.RunInTransaction(t =>
             {
                 DonHangDTO dh = dal.GetForUpdate(t, maDH);

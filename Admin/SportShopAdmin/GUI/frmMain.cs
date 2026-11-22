@@ -50,6 +50,7 @@ namespace SportShopAdmin.GUI
             AddMenu(flow, "Quản lý danh mục", () => new frmDanhMuc());
             AddMenu(flow, "Quản lý sản phẩm", () => new frmSanPham());
             AddMenu(flow, "Quản lý tồn kho", () => new frmTonKho());
+            AddMenu(flow, "Nhập kho", () => new frmTonKho(true));
             AddMenu(flow, "Quản lý đơn hàng", () => new frmDonHang());
             AddMenu(flow, "Tài khoản khách hàng", () => new frmKhachHang());
             AddMenu(flow, "Mã giảm giá", () => new frmMaGiamGia());
@@ -130,10 +131,11 @@ namespace SportShopAdmin.GUI
             flow.Controls.Add(b);
         }
 
-        /// <summary>Mở chức năng theo vị trí menu (dùng cho các ô thống kê trên Trang chủ)</summary>
-        public void OpenMenu(int index)
+        /// <summary>Mở chức năng theo tên mục menu (dùng cho các ô thống kê trên Trang chủ)</summary>
+        public void OpenMenu(string text)
         {
-            if (index >= 0 && index < menuButtons.Count) menuButtons[index].PerformClick();
+            Button b = menuButtons.Find(x => x.Text.Trim() == text);
+            if (b != null) b.PerformClick();
         }
 
         private void OpenChild(Button source, Form child)

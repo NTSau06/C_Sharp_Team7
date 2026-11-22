@@ -22,10 +22,10 @@ namespace SportShopAdmin.BLL
         {
             dm.TenDM = (dm.TenDM ?? "").Trim();
             dm.MoTa = (dm.MoTa ?? "").Trim();
-            if (dm.TenDM == "") throw new BusinessException("Tên danh mục không được để trống.");
-            if (dm.TenDM.Length > 100) throw new BusinessException("Tên danh mục tối đa 100 ký tự.");
-            if (dm.MoTa.Length > 500) throw new BusinessException("Mô tả tối đa 500 ký tự.");
-            if (dal.ExistsTen(dm.TenDM, dm.MaDM)) throw new BusinessException("Tên danh mục đã tồn tại.");
+            if (dm.TenDM == "") throw new BusinessException("Tên danh mục không được để trống.", "TenDM");
+            if (dm.TenDM.Length > 100) throw new BusinessException("Tên danh mục tối đa 100 ký tự.", "TenDM");
+            if (dm.MoTa.Length > 500) throw new BusinessException("Mô tả tối đa 500 ký tự.", "MoTa");
+            if (dal.ExistsTen(dm.TenDM, dm.MaDM)) throw new BusinessException("Tên danh mục đã tồn tại.", "TenDM");
             if (dm.MaDM == 0) return dal.Insert(dm);
             dal.Update(dm);
             return dm.MaDM;

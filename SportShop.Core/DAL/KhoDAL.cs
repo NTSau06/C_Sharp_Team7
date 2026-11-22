@@ -108,7 +108,7 @@ namespace SportShopAdmin.DAL
                 "  UNION ALL " +
                 "  SELECT dh.NgayDat, N'Xuất bán', 'DH' + CAST(dh.MaDH AS VARCHAR(10)), ct.MaSP, sp.TenSP, ct.SoLuong, ct.DonGia " +
                 "  FROM ChiTietDonHang ct JOIN DonHang dh ON dh.MaDH = ct.MaDH JOIN SanPham sp ON sp.MaSP = ct.MaSP " +
-                "  WHERE dh.TrangThai IN (N'Đã xác nhận', N'Đang giao', N'Đã giao') " +
+                "  WHERE dh.TrangThai IN (N'Đã xác nhận', N'Đang giao', N'Đã giao hàng') " +
                 ") x WHERE x.Ngay >= @f AND x.Ngay < @t AND (@kw = '' OR x.TenSP LIKE @like) ORDER BY x.Ngay DESC";
             DataTable dt = DBConnect.ExecuteQuery(sql,
                 DBConnect.PDate("@f", tuNgay.Date), DBConnect.PDate("@t", denNgay.Date.AddDays(1)),

@@ -26,12 +26,13 @@ namespace SportShopAdmin.BLL
         {
             sp.TenSP = (sp.TenSP ?? "").Trim();
             sp.MoTa = (sp.MoTa ?? "").Trim();
-            if (sp.TenSP == "") throw new BusinessException("Tên sản phẩm không được để trống.");
-            if (sp.TenSP.Length > 200) throw new BusinessException("Tên sản phẩm tối đa 200 ký tự.");
-            if (sp.MaDM <= 0) throw new BusinessException("Vui lòng chọn danh mục cho sản phẩm.");
-            if (sp.GiaBan <= 0) throw new BusinessException("Giá bán phải lớn hơn 0.");
-            if (sp.SoLuongTon < 0) throw new BusinessException("Số lượng tồn không được âm.");
-            if (sp.MucTonToiThieu < 0) throw new BusinessException("Mức tồn tối thiểu không được âm.");
+            if (sp.TenSP == "") throw new BusinessException("Tên sản phẩm không được để trống.", "TenSP");
+            if (sp.TenSP.Length > 200) throw new BusinessException("Tên sản phẩm tối đa 200 ký tự.", "TenSP");
+            if (sp.MaDM <= 0) throw new BusinessException("Vui lòng chọn danh mục cho sản phẩm.", "MaDM");
+            if (sp.GiaBan <= 0) throw new BusinessException("Giá bán phải lớn hơn 0.", "GiaBan");
+            // BR04: tồn kho chỉ tăng qua phiếu nhập kho (và giảm khi xác nhận đơn) -> sản phẩm mới luôn bắt đầu với tồn = 0
+            if (sp.MaSP == 0) sp.SoLuongTon = 0;
+            if (sp.MucTonToiThieu < 0) throw new BusinessException("Mức tồn tối thiểu không được âm.", "MucTonToiThieu");
             if (string.IsNullOrWhiteSpace(sp.HinhAnh)) sp.HinhAnh = null;
             if (sp.MaSP == 0) return dal.Insert(sp);
             dal.Update(sp);

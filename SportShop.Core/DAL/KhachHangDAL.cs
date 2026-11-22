@@ -98,7 +98,7 @@ namespace SportShopAdmin.DAL
         public int CountDonChuaHoanTat(int maKH)
         {
             string sql = "SELECT COUNT(*) FROM DonHang WHERE MaKH = @id AND TrangThai IN " +
-                         "(N'Chờ thanh toán', N'Chờ xác nhận', N'Đã xác nhận', N'Đang giao')";
+                         "(N'Chờ xác nhận', N'Đã xác nhận', N'Đang giao')";
             return Convert.ToInt32(DBConnect.ExecuteScalar(sql, DBConnect.P("@id", maKH)));
         }
     }

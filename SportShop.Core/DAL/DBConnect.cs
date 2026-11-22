@@ -12,11 +12,23 @@ namespace SportShopAdmin.DAL
     public static class DBConnect
     {
         private const string ConnectionName = "SportShopDB";
+        private static string _overrideConnectionString;
+
+        /// <summary>
+        /// Gọi MỘT LẦN lúc khởi động ứng dụng Web (Program.cs) để cung cấp connection string
+        /// đọc từ appsettings.json, vì ASP.NET Core không dùng App.config/ConfigurationManager.
+        /// Ứng dụng Desktop (WinForms) KHÔNG gọi hàm này - vẫn đọc từ App.config như trước giờ.
+        /// </summary>
+        public static void UseConnectionString(string connectionString)
+        {
+            _overrideConnectionString = connectionString;
+        }
 
         public static string ConnectionString
         {
             get
             {
+                if (_overrideConnectionString != null) return _overrideConnectionString;
                 ConnectionStringSettings cs = ConfigurationManager.ConnectionStrings[ConnectionName];
                 if (cs == null)
                     throw new ConfigurationErrorsException("Thiếu chuỗi kết nối 'SportShopDB' trong App.config.");
@@ -35,7 +47,7 @@ namespace SportShopAdmin.DAL
             return new SqlConnectionStringBuilder(ConnectionString).DataSource;
         }
 
-        /// <summary>Lưu lại tên máy chủ SQL vào file cấu hình của chương trình</summary>
+        /// <summary>Lưu lại tên máy chủ SQL vào file cấu hình của chương trình (chỉ áp dụng cho app .exe có App.config)</summary>
         public static void SaveServerName(string server)
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);

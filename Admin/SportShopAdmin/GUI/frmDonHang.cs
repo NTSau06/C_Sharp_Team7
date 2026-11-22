@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using SportShopAdmin.BLL;
 using SportShopAdmin.DTO;
+using SportShopAdmin.Utils;
 
 namespace SportShopAdmin.GUI
 {
@@ -154,7 +155,7 @@ namespace SportShopAdmin.GUI
             if (dh == null) return;
             if (!UiHelper.Confirm(this, "Xác nhận đơn hàng #" + dh.MaDH + " của " + dh.TenKH + "?\n" +
                                         "Hệ thống sẽ tự động trừ số lượng tồn kho tương ứng.")) return;
-            if (!UiHelper.Try(this, () => bll.XacNhan(dh.MaDH)))
+            if (!UiHelper.Try(this, () => bll.XacNhan(dh.MaDH, Session.MaQTV)))
             {
                 LoadData(false);
                 return;
@@ -169,7 +170,7 @@ namespace SportShopAdmin.GUI
             if (dh == null) return;
             string lyDo = InputDialog.Show(this, "Hủy đơn hàng #" + dh.MaDH, "Nhập lý do hủy / từ chối đơn hàng:", "Sản phẩm trong kho không đủ số lượng", true);
             if (lyDo == null) return;
-            if (!UiHelper.Try(this, () => bll.Huy(dh.MaDH, lyDo))) return;
+            if (!UiHelper.Try(this, () => bll.Huy(dh.MaDH, lyDo, Session.MaQTV))) return;
             UiHelper.Info(this, "Đã hủy đơn hàng #" + dh.MaDH + ".");
             LoadData(false);
         }
@@ -337,7 +338,7 @@ namespace SportShopAdmin.GUI
             {
                 if (cbo.SelectedItem == null) { UiHelper.Warn(this, "Hãy chọn trạng thái mới."); return; }
                 string moi = cbo.SelectedItem.ToString();
-                if (!UiHelper.Try(this, () => new DonHangBLL().CapNhatGiaoHang(dh.MaDH, moi, txtLyDo.Text))) return;
+                if (!UiHelper.Try(this, () => new DonHangBLL().CapNhatGiaoHang(dh.MaDH, moi, txtLyDo.Text, Session.MaQTV))) return;
                 UiHelper.Info(this, "Đã cập nhật đơn #" + dh.MaDH + " sang \"" + moi + "\".");
                 DialogResult = DialogResult.OK;
                 Close();

@@ -99,8 +99,8 @@ CREATE TABLE DonHang (
     MaDH        INT IDENTITY(1,1) CONSTRAINT PK_DonHang PRIMARY KEY,
     NgayDat     DATETIME NOT NULL CONSTRAINT DF_DH_NgayDat DEFAULT GETDATE(),
     TrangThai   NVARCHAR(30) NOT NULL CONSTRAINT DF_DH_TrangThai DEFAULT N'Chờ xác nhận'
-                CONSTRAINT CK_DH_TrangThai CHECK (TrangThai IN (N'Chờ thanh toán', N'Chờ xác nhận', N'Đã xác nhận',
-                                                                N'Đang giao', N'Đã giao', N'Giao thất bại', N'Đã hủy')),
+                CONSTRAINT CK_DH_TrangThai CHECK (TrangThai IN (N'Chờ xác nhận', N'Đã xác nhận',
+                                                                N'Đang giao', N'Đã giao hàng', N'Giao thất bại', N'Đã hủy')),
     DiaChiGiao  NVARCHAR(255) NOT NULL,
     TienGiam    DECIMAL(18,0) NOT NULL CONSTRAINT DF_DH_TienGiam DEFAULT 0 CONSTRAINT CK_DH_TienGiam CHECK (TienGiam >= 0),
     TongTien    DECIMAL(18,0) NOT NULL CONSTRAINT DF_DH_TongTien DEFAULT 0 CONSTRAINT CK_DH_TongTien CHECK (TongTien >= 0),
@@ -239,20 +239,20 @@ JOIN (SELECT MaPN, SUM(SoLuongNhap * GiaNhap) AS Tong FROM ChiTietPhieuNhap GROU
 
 -- Đơn hàng mẫu (đủ các trạng thái, trải đều 6 tháng gần nhất để thống kê)
 INSERT INTO DonHang(NgayDat, TrangThai, DiaChiGiao, TienGiam, GhiChu, MaKH, MaPTTT, MaQTV, MaMGG) VALUES
- (DATEADD(DAY,-170,GETDATE()), N'Đã giao',        N'', 0,      NULL, 1, 1, 1, NULL),   -- 1
- (DATEADD(DAY,-160,GETDATE()), N'Đã giao',        N'', 0,      NULL, 2, 2, 1, NULL),   -- 2
- (DATEADD(DAY,-150,GETDATE()), N'Đã giao',        N'', 0,      NULL, 3, 1, 1, NULL),   -- 3
- (DATEADD(DAY,-135,GETDATE()), N'Đã giao',        N'', 0,      NULL, 4, 3, 2, NULL),   -- 4
- (DATEADD(DAY,-120,GETDATE()), N'Đã giao',        N'', 0,      NULL, 1, 1, 1, NULL),   -- 5
- (DATEADD(DAY,-105,GETDATE()), N'Đã giao',        N'', 0,      NULL, 5, 2, 2, NULL),   -- 6
- (DATEADD(DAY,-95, GETDATE()), N'Đã giao',        N'', 0,      NULL, 6, 1, 1, NULL),   -- 7
- (DATEADD(DAY,-80, GETDATE()), N'Đã giao',        N'', 0,      NULL, 2, 1, 1, NULL),   -- 8
- (DATEADD(DAY,-65, GETDATE()), N'Đã giao',        N'', 0,      NULL, 3, 3, 2, NULL),   -- 9
- (DATEADD(DAY,-50, GETDATE()), N'Đã giao',        N'', 0,      NULL, 4, 1, 1, NULL),   -- 10
+ (DATEADD(DAY,-170,GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 1, 1, 1, NULL),   -- 1
+ (DATEADD(DAY,-160,GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 2, 2, 1, NULL),   -- 2
+ (DATEADD(DAY,-150,GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 3, 1, 1, NULL),   -- 3
+ (DATEADD(DAY,-135,GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 4, 3, 2, NULL),   -- 4
+ (DATEADD(DAY,-120,GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 1, 1, 1, NULL),   -- 5
+ (DATEADD(DAY,-105,GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 5, 2, 2, NULL),   -- 6
+ (DATEADD(DAY,-95, GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 6, 1, 1, NULL),   -- 7
+ (DATEADD(DAY,-80, GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 2, 1, 1, NULL),   -- 8
+ (DATEADD(DAY,-65, GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 3, 3, 2, NULL),   -- 9
+ (DATEADD(DAY,-50, GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 4, 1, 1, NULL),   -- 10
  (DATEADD(DAY,-40, GETDATE()), N'Đã hủy',         N'', 0,      N'Khách hàng đổi ý, yêu cầu hủy đơn', 5, 2, 1, NULL), -- 11
- (DATEADD(DAY,-30, GETDATE()), N'Đã giao',        N'', 0,      NULL, 6, 1, 2, NULL),   -- 12
+ (DATEADD(DAY,-30, GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 6, 1, 2, NULL),   -- 12
  (DATEADD(DAY,-20, GETDATE()), N'Giao thất bại',  N'', 0,      N'Không liên lạc được với khách hàng', 1, 1, 1, NULL), -- 13
- (DATEADD(DAY,-12, GETDATE()), N'Đã giao',        N'', 0,      NULL, 2, 2, 1, NULL),   -- 14
+ (DATEADD(DAY,-12, GETDATE()), N'Đã giao hàng',        N'', 0,      NULL, 2, 2, 1, NULL),   -- 14
  (DATEADD(DAY,-6,  GETDATE()), N'Đang giao',      N'', 0,      NULL, 3, 1, 1, NULL),   -- 15
  (DATEADD(DAY,-4,  GETDATE()), N'Đã xác nhận',    N'', 75000,  NULL, 4, 1, 2, 1),      -- 16 SPORT10
  (DATEADD(DAY,-2,  GETDATE()), N'Chờ xác nhận',   N'', 98000,  NULL, 5, 3, NULL, 1),   -- 17 SPORT10

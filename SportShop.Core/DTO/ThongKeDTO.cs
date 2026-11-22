@@ -16,6 +16,7 @@ namespace SportShopAdmin.DTO
     {
         SanPham,
         DanhMuc,
+        MaGiamGia,
         KhachHang,
         PhuongThucThanhToan
     }
