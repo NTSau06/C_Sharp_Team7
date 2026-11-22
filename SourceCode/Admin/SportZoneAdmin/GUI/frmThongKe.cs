@@ -38,7 +38,7 @@ namespace SportZoneAdmin.GUI
         private string subtitle2 = "";
 
         private static readonly string[] TenKieu = { "Theo ngày", "Theo tuần", "Theo tháng", "Theo quý", "Theo năm" };
-        private static readonly string[] TenTieuChi = { "Theo sản phẩm", "Theo danh mục", "Theo khách hàng", "Theo phương thức thanh toán" };
+        private static readonly string[] TenTieuChi = { "Theo sản phẩm", "Theo danh mục", "Theo mã giảm giá", "Theo khách hàng", "Theo phương thức thanh toán" };
 
         public frmThongKe()
         {
@@ -186,6 +186,7 @@ namespace SportZoneAdmin.GUI
             {
                 case TieuChiBaoCao.SanPham: tenNhom = "Sản phẩm"; break;
                 case TieuChiBaoCao.DanhMuc: tenNhom = "Danh mục"; break;
+                case TieuChiBaoCao.MaGiamGia: tenNhom = "Mã giảm giá"; break;
                 case TieuChiBaoCao.KhachHang: tenNhom = "Khách hàng"; break;
                 default: tenNhom = "Phương thức thanh toán"; break;
             }

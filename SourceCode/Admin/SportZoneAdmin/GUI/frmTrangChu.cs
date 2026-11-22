@@ -37,8 +37,8 @@ namespace SportZoneAdmin.GUI
             };
             table.Controls.Add(Box("Đơn hàng chờ xác nhận (nhấp đúp để mở Quản lý đơn hàng)", gridDon), 0, 0);
             table.Controls.Add(Box("Sản phẩm sắp hết hàng (tồn ≤ mức tối thiểu)", gridKho), 1, 0);
-            gridDon.CellDoubleClick += (s, e) => main.OpenMenu(4);
-            gridKho.CellDoubleClick += (s, e) => main.OpenMenu(3);
+            gridDon.CellDoubleClick += (s, e) => main.OpenMenu("Quản lý đơn hàng");
+            gridKho.CellDoubleClick += (s, e) => main.OpenMenu("Quản lý tồn kho");
 
             Controls.Add(table);
             Controls.Add(cards);
@@ -53,14 +53,14 @@ namespace SportZoneAdmin.GUI
             return group;
         }
 
-        private void AddCard(string title, string value, Color color, int menuIndex)
+        private void AddCard(string title, string value, Color color, string menuText)
         {
             var p = new Panel { Width = 270, Height = 112, BackColor = color, Margin = new Padding(0, 0, 14, 0), Cursor = Cursors.Hand };
             var lblValue = new Label { Text = value, Dock = DockStyle.Fill, ForeColor = Color.White, Font = UiHelper.BigNumberFont, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(14, 0, 0, 0) };
             var lblTitle = new Label { Text = title, Dock = DockStyle.Top, Height = 38, ForeColor = Color.White, Font = UiHelper.BoldFont, TextAlign = ContentAlignment.BottomLeft, Padding = new Padding(14, 0, 0, 0) };
             p.Controls.Add(lblValue);
             p.Controls.Add(lblTitle);
-            EventHandler open = (s, e) => main.OpenMenu(menuIndex);
+            EventHandler open = (s, e) => main.OpenMenu(menuText);
             p.Click += open;
             lblValue.Click += open;
             lblTitle.Click += open;
@@ -73,10 +73,10 @@ namespace SportZoneAdmin.GUI
             UiHelper.Try(this, () =>
             {
                 TongQuanDTO tq = new ThongKeBLL().TongQuan();
-                AddCard("Đơn chờ xác nhận", tq.DonChoXacNhan.ToString("N0"), UiHelper.Orange, 4);
-                AddCard("Sản phẩm sắp hết hàng", tq.SanPhamSapHet.ToString("N0"), UiHelper.Danger, 3);
-                AddCard("Doanh thu tháng " + DateTime.Now.ToString("MM/yyyy"), tq.DoanhThuThangNay.ToString("N0") + " đ", UiHelper.Primary, 7);
-                AddCard("Khách hàng hoạt động", tq.SoKhachHang.ToString("N0"), UiHelper.Blue, 5);
+                AddCard("Đơn chờ xác nhận", tq.DonChoXacNhan.ToString("N0"), UiHelper.Orange, "Quản lý đơn hàng");
+                AddCard("Sản phẩm sắp hết hàng", tq.SanPhamSapHet.ToString("N0"), UiHelper.Danger, "Quản lý tồn kho");
+                AddCard("Doanh thu tháng " + DateTime.Now.ToString("MM/yyyy"), tq.DoanhThuThangNay.ToString("N0") + " đ", UiHelper.Primary, "Thống kê doanh thu");
+                AddCard("Khách hàng hoạt động", tq.SoKhachHang.ToString("N0"), UiHelper.Blue, "Tài khoản khách hàng");
 
                 UiHelper.Bind(gridDon, new DonHangBLL().GetList("", TrangThaiDonHang.ChoXacNhan, null, null),
                     "MaDH|Mã đơn||50", "NgayDat|Ngày đặt|dd/MM/yyyy HH:mm|110", "TenKH|Khách hàng||130", "TongTien|Tổng tiền|N0|90");

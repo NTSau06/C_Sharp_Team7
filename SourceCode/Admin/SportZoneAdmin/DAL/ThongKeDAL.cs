@@ -70,6 +70,14 @@ namespace SportZoneAdmin.DAL
                           "JOIN DanhMuc dm ON dm.MaDM = sp.MaDM " +
                           where + "GROUP BY dm.MaDM, dm.TenDM ORDER BY DoanhThuGop DESC";
                     break;
+                case TieuChiBaoCao.MaGiamGia:
+                    // UC 1.2.6.2: doanh thu theo mã giảm giá; đơn không dùng mã gom vào một dòng riêng
+                    sql = "SELECT ISNULL(m.Code, N'(Không dùng mã)') AS Nhom, COUNT(*) AS SoDon, SUM(ISNULL(s.SL, 0)) AS SoLuongBan, " +
+                          "SUM(dh.TongTien + dh.TienGiam) AS DoanhThuGop, SUM(dh.TienGiam) AS ChietKhau " +
+                          "FROM DonHang dh LEFT JOIN MaGiamGia m ON m.MaMGG = dh.MaMGG " +
+                          "LEFT JOIN (SELECT MaDH, SUM(SoLuong) AS SL FROM ChiTietDonHang GROUP BY MaDH) s ON s.MaDH = dh.MaDH " +
+                          where + "GROUP BY m.MaMGG, m.Code ORDER BY DoanhThuGop DESC";
+                    break;
                 case TieuChiBaoCao.KhachHang:
                     sql = "SELECT kh.HoTen + ' (' + kh.TenDangNhap + ')' AS Nhom, COUNT(*) AS SoDon, SUM(ISNULL(s.SL, 0)) AS SoLuongBan, " +
                           "SUM(dh.TongTien + dh.TienGiam) AS DoanhThuGop, SUM(dh.TienGiam) AS ChietKhau " +

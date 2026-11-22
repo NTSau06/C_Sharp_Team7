@@ -25,6 +25,8 @@ namespace SportZoneAdmin.DAL
         {
             ".",
             @".\SQLEXPRESS",
+            @".\SQLEXPRESS01",
+            @".\SQLEXPRESS02",
             @"(localdb)\MSSQLLocalDB",
             "localhost",
             @"localhost\SQLEXPRESS"

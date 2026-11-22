@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using SportZoneAdmin.BLL;
 using SportZoneAdmin.DTO;
@@ -15,6 +16,8 @@ namespace SportZoneAdmin.GUI
         private readonly TextBox txtTen;
         private readonly TextBox txtMoTa;
         private int currentId;
+        private readonly ErrorProvider ep;
+        private readonly Dictionary<string, Control> errFields;
 
         public frmDanhMuc()
         {
@@ -41,6 +44,9 @@ namespace SportZoneAdmin.GUI
             btnNew.Click += (s, e) => ClearEditor();
             btnSave.Click += BtnSave_Click;
             btnDelete.Click += BtnDelete_Click;
+
+            ep = UiHelper.MakeErrorProvider(this);
+            errFields = new Dictionary<string, Control> { { "TenDM", txtTen }, { "MoTa", txtMoTa } };
 
             grid = UiHelper.MakeGrid();
             grid.SelectionChanged += (s, e) => FillEditor(UiHelper.Selected<DanhMucDTO>(grid));
@@ -91,7 +97,7 @@ namespace SportZoneAdmin.GUI
             var dm = new DanhMucDTO { MaDM = currentId, TenDM = txtTen.Text, MoTa = txtMoTa.Text };
             bool isNew = currentId == 0;
             int id = 0;
-            if (!UiHelper.Try(this, () => id = bll.Save(dm))) return;
+            if (!UiHelper.TrySave(this, ep, errFields, () => id = bll.Save(dm))) return;
             UiHelper.Info(this, isNew ? "Đã thêm danh mục mới." : "Đã cập nhật danh mục.");
             LoadData();
             SelectRow(id);

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using SportZoneAdmin.BLL;
 using SportZoneAdmin.DTO;
+using SportZoneAdmin.Utils;
 
 namespace SportZoneAdmin.GUI
 {
@@ -34,10 +35,18 @@ namespace SportZoneAdmin.GUI
         private readonly TextBox txtLsSP;
         private readonly Label lblLsSummary;
 
-        public frmTonKho()
+        private readonly bool moNhapKho;
+        private TabPage tabPhieuNhap;
+        private TabControl tabs;
+
+        public frmTonKho() : this(false) { }
+
+        /// <param name="moNhapKho">true: mở từ menu "Nhập kho" - chuyển sang tab Phiếu nhập và mở ngay form lập phiếu (frmNhapKho)</param>
+        public frmTonKho(bool moNhapKho)
         {
-            UiHelper.SetupChild(this, "Quản lý tồn kho");
-            var tabs = new TabControl { Dock = DockStyle.Fill, Padding = new Point(16, 6) };
+            this.moNhapKho = moNhapKho;
+            UiHelper.SetupChild(this, moNhapKho ? "Nhập kho" : "Quản lý tồn kho");
+            tabs = new TabControl { Dock = DockStyle.Fill, Padding = new Point(16, 6) };
 
             // ================= TAB 1: TỒN KHO HIỆN TẠI
             var tabTon = new TabPage("Tồn kho hiện tại") { BackColor = Color.White };
@@ -114,6 +123,7 @@ namespace SportZoneAdmin.GUI
 
             tabs.TabPages.Add(tabTon);
             tabs.TabPages.Add(tabPN);
+            tabPhieuNhap = tabPN;
             tabs.TabPages.Add(tabLS);
             tabs.SelectedIndexChanged += (s, e) =>
             {
@@ -127,6 +137,11 @@ namespace SportZoneAdmin.GUI
         {
             base.OnLoad(e);
             LoadTonKho();
+            if (moNhapKho)
+            {
+                tabs.SelectedTab = tabPhieuNhap;
+                BeginInvoke((Action)LapPhieuNhap);
+            }
         }
 
         private void LoadTonKho()
@@ -147,7 +162,7 @@ namespace SportZoneAdmin.GUI
         private void LapPhieuNhap()
         {
             SanPhamDTO sp = UiHelper.Selected<SanPhamDTO>(gridTon);
-            using (var f = new frmPhieuNhap(sp == null ? 0 : sp.MaSP))
+            using (var f = new frmNhapKho(sp == null ? 0 : sp.MaSP))
             {
                 if (f.ShowDialog(this) == DialogResult.OK)
                 {
@@ -196,7 +211,7 @@ namespace SportZoneAdmin.GUI
     }
 
     /// <summary>UC 1.2.12 - Lập phiếu nhập kho (cộng dồn tồn kho trong transaction)</summary>
-    public class frmPhieuNhap : Form
+    public class frmNhapKho : Form
     {
         private readonly BindingList<ChiTietPhieuNhapDTO> lines = new BindingList<ChiTietPhieuNhapDTO>();
         private readonly ComboBox cboSP;
@@ -207,7 +222,7 @@ namespace SportZoneAdmin.GUI
         private readonly Label lblTong;
         private List<SanPhamDTO> products = new List<SanPhamDTO>();
 
-        public frmPhieuNhap(int maSPChon)
+        public frmNhapKho(int maSPChon)
         {
             Text = "Lập phiếu nhập kho";
             Font = UiHelper.BaseFont;

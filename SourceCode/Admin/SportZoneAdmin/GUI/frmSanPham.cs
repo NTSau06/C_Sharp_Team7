@@ -29,6 +29,8 @@ namespace SportZoneAdmin.GUI
         private int currentId;
         private string currentImage;
         private bool loading;
+        private readonly ErrorProvider ep;
+        private readonly Dictionary<string, Control> errFields;
 
         public frmSanPham()
         {
@@ -50,12 +52,13 @@ namespace SportZoneAdmin.GUI
             cboDM = UiHelper.AddField(fields, "Danh mục (*):", UiHelper.MakeCombo());
             numGia = UiHelper.AddField(fields, "Giá bán (đ) (*):", UiHelper.MakeNumber(0, 1000000000, 10000));
             numTon = UiHelper.AddField(fields, "Số lượng tồn:", UiHelper.MakeNumber(0, 1000000, 1));
+            numTon.Enabled = false; // BR04: chỉ đọc, tồn kho chỉ thay đổi qua Nhập kho / Xác nhận đơn
             lblTonHint = UiHelper.AddField(fields, "", new Label
             {
                 AutoSize = true,
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
-                Text = "Sau khi tạo, tồn kho chỉ thay đổi qua Nhập kho\nhoặc khi Xác nhận đơn hàng."
+                Text = "Chỉ đọc. Sản phẩm mới bắt đầu với tồn = 0; tồn kho chỉ thay đổi\nqua Nhập kho hoặc khi Xác nhận đơn hàng."
             });
             numMin = UiHelper.AddField(fields, "Mức tồn tối thiểu:", UiHelper.MakeNumber(0, 100000, 1));
             txtMoTa = UiHelper.AddField(fields, "Mô tả:", UiHelper.MakeMultiline(70));
@@ -82,6 +85,12 @@ namespace SportZoneAdmin.GUI
             btnNew.Click += (s, e) => ClearEditor();
             btnSave.Click += BtnSave_Click;
             btnDelete.Click += BtnDelete_Click;
+
+            ep = UiHelper.MakeErrorProvider(this);
+            errFields = new Dictionary<string, Control>
+            {
+                { "TenSP", txtTen }, { "MaDM", cboDM }, { "GiaBan", numGia }, { "MucTonToiThieu", numMin }
+            };
 
             grid = UiHelper.MakeGrid();
             grid.SelectionChanged += (s, e) => FillEditor(UiHelper.Selected<SanPhamDTO>(grid));
@@ -153,7 +162,6 @@ namespace SportZoneAdmin.GUI
             numGia.Value = Clamp(numGia, sp.GiaBan);
             numTon.Value = Clamp(numTon, sp.SoLuongTon);
             numMin.Value = Clamp(numMin, sp.MucTonToiThieu);
-            numTon.Enabled = false;
             txtMoTa.Text = sp.MoTa;
             SetImage(sp.HinhAnh);
         }
@@ -172,7 +180,6 @@ namespace SportZoneAdmin.GUI
             if (cboDM.Items.Count > 0) cboDM.SelectedIndex = 0;
             numGia.Value = 0;
             numTon.Value = 0;
-            numTon.Enabled = true;
             numMin.Value = 5;
             txtMoTa.Clear();
             SetImage(null);
@@ -211,7 +218,7 @@ namespace SportZoneAdmin.GUI
             };
             bool isNew = currentId == 0;
             int id = 0;
-            if (!UiHelper.Try(this, () => id = bll.Save(sp))) return;
+            if (!UiHelper.TrySave(this, ep, errFields, () => id = bll.Save(sp))) return;
             UiHelper.Info(this, isNew ? "Đã thêm sản phẩm mới." : "Đã cập nhật sản phẩm.");
             LoadData();
             SelectRow(id);

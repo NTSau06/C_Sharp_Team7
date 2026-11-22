@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Globalization;
@@ -269,6 +270,40 @@ namespace SportZoneAdmin.GUI
         }
 
         /// <summary>Chạy action, bắt lỗi nghiệp vụ / CSDL và hiển thị thông báo phù hợp</summary>
+        /// <summary>
+        /// Như Try, nhưng lỗi nghiệp vụ gắn với một ô nhập (BusinessException.Field) được báo ngay cạnh ô đó
+        /// bằng ErrorProvider và đưa con trỏ về ô đó (báo cáo mục 2.8.1, UC 1.2.3 - 3a).
+        /// fields: ánh xạ tên thuộc tính DTO → control trên form.
+        /// </summary>
+        public static bool TrySave(IWin32Window owner, ErrorProvider ep, IDictionary<string, Control> fields, Action action)
+        {
+            foreach (Control c in fields.Values) ep.SetError(c, "");
+            try
+            {
+                action();
+                return true;
+            }
+            catch (BusinessException ex) when (ex.Field != null && fields.ContainsKey(ex.Field))
+            {
+                Control c = fields[ex.Field];
+                ep.SetError(c, ex.Message);
+                c.Focus();
+                Warn(owner, ex.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // Các lỗi còn lại xử lý như Try (MessageBox)
+                return Try(owner, () => { throw ex; });
+            }
+        }
+
+        /// <summary>Tạo ErrorProvider dùng chung cho form (biểu tượng lỗi nhấp nháy cạnh ô nhập).</summary>
+        public static ErrorProvider MakeErrorProvider(ContainerControl form)
+        {
+            return new ErrorProvider(form) { BlinkStyle = ErrorBlinkStyle.NeverBlink };
+        }
+
         public static bool Try(IWin32Window owner, Action action)
         {
             try
