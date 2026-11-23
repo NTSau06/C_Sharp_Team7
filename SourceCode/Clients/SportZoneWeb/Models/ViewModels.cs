@@ -117,6 +117,11 @@ namespace SportZoneWeb.Models
         [Display(Name = "Mã giảm giá")]
         public string MaGiamGia { get; set; }
 
+        /// <summary>"Mua ngay": đặt riêng 1 sản phẩm, không dùng và không xóa giỏ hàng (null = đặt cả giỏ)</summary>
+        public int? MuaNgayMaSP { get; set; }
+        public int MuaNgaySoLuong { get; set; } = 1;
+        public bool LaMuaNgay => MuaNgayMaSP.HasValue;
+
         // ----- dữ liệu hiển thị
         public List<GioHangItemVM> Items { get; set; } = new List<GioHangItemVM>();
         public List<PhuongThucThanhToanDTO> PhuongThucs { get; set; } = new List<PhuongThucThanhToanDTO>();

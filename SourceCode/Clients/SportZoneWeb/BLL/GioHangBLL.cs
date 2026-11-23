@@ -34,6 +34,28 @@ namespace SportZoneWeb.BLL
             return list;
         }
 
+        /// <summary>"Mua ngay": tạo danh sách 1 dòng hàng từ sản phẩm (không đọc / ghi bảng GioHang).
+        /// Sản phẩm không tồn tại => danh sách rỗng.</summary>
+        public List<GioHangItemVM> LayMuaNgay(int maSP, int soLuong)
+        {
+            SanPhamDTO sp = sanPhamDAL.GetById(maSP);
+            if (sp == null) return new List<GioHangItemVM>();
+            return new List<GioHangItemVM>
+            {
+                new GioHangItemVM
+                {
+                    MaSP = sp.MaSP,
+                    TenSP = sp.TenSP,
+                    HinhAnh = sp.HinhAnh,
+                    MaDM = sp.MaDM,
+                    TenDM = sp.TenDM,
+                    DonGia = sp.GiaBan,
+                    SoLuong = Math.Max(1, soLuong),
+                    SoLuongTon = sp.SoLuongTon
+                }
+            };
+        }
+
         /// <summary>Thông báo chuẩn khi số lượng vượt tồn kho (TC21)</summary>
         public static string ThongBaoVuotTonKho(int soLuongTon) =>
             "Số lượng vượt quá tồn kho hiện tại (chỉ còn " + soLuongTon + " sản phẩm)";

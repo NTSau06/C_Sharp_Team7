@@ -29,15 +29,28 @@ namespace SportZoneWeb.BLL
             if (!thanhToanBLL.KiemTraPhuongThuc(vm.MaPTTT))
                 throw new BusinessException("Vui lòng chọn một phương thức thanh toán", "MaPTTT");
 
-            // ----- kiểm tra giỏ hàng + tồn kho (A2: hết hàng thì xóa khỏi giỏ, yêu cầu xem lại giỏ)
-            if (gioHangBLL.LayGioHang(maKH).Count == 0)
-                throw new GioHangThayDoiException("Giỏ hàng của bạn đang trống");
-            List<string> thayDoi = gioHangBLL.DieuChinhTheoTonKho(maKH);
-            if (thayDoi.Count > 0)
-                throw new GioHangThayDoiException(string.Join(" ", thayDoi) + " Vui lòng xem lại giỏ hàng.");
-            List<GioHangItemVM> items = gioHangBLL.LayGioHang(maKH);
-            if (items.Count == 0)
-                throw new GioHangThayDoiException("Giỏ hàng của bạn đang trống");
+            List<GioHangItemVM> items;
+            if (vm.LaMuaNgay)
+            {
+                // ----- "Mua ngay": chỉ đặt 1 sản phẩm, giỏ hàng giữ nguyên
+                if (vm.MuaNgaySoLuong < 1 || vm.MuaNgaySoLuong > GioHangBLL.SoLuongToiDaMoiSanPham)
+                    throw new BusinessException("Số lượng không hợp lệ.");
+                items = gioHangBLL.LayMuaNgay(vm.MuaNgayMaSP.Value, vm.MuaNgaySoLuong);
+                if (items.Count == 0)
+                    throw new GioHangThayDoiException("Sản phẩm không còn tồn tại.");
+            }
+            else
+            {
+                // ----- kiểm tra giỏ hàng + tồn kho (A2: hết hàng thì xóa khỏi giỏ, yêu cầu xem lại giỏ)
+                if (gioHangBLL.LayGioHang(maKH).Count == 0)
+                    throw new GioHangThayDoiException("Giỏ hàng của bạn đang trống");
+                List<string> thayDoi = gioHangBLL.DieuChinhTheoTonKho(maKH);
+                if (thayDoi.Count > 0)
+                    throw new GioHangThayDoiException(string.Join(" ", thayDoi) + " Vui lòng xem lại giỏ hàng.");
+                items = gioHangBLL.LayGioHang(maKH);
+                if (items.Count == 0)
+                    throw new GioHangThayDoiException("Giỏ hàng của bạn đang trống");
+            }
 
             string code = MaGiamGiaBLL.ChuanHoaCode(vm.MaGiamGia);
             string diaChiGiao = hoTen + " - " + sdt + " - " + diaChi;
@@ -84,7 +97,7 @@ namespace SportZoneWeb.BLL
                 foreach (var d in dong)
                     donHangDAL.InsertChiTiet(t, maDH, d.MaSP, d.SoLuong, d.DonGia);
 
-                gioHangDAL.Clear(maKH, t);
+                if (!vm.LaMuaNgay) gioHangDAL.Clear(maKH, t);
                 return maDH;
             });
         }

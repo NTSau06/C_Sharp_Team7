@@ -50,10 +50,20 @@
                        data-ton="@sp.SoLuongTon" data-warn="#detail-warn" aria-label="Số lượng" />
                 <button type="button" class="qty-btn" data-step="1" disabled="@sp.HetHang" aria-label="Tăng số lượng">+</button>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg" disabled="@sp.HetHang">
+            <button type="submit" class="btn btn-outline btn-lg" disabled="@sp.HetHang">
                 @(sp.HetHang ? "Hết hàng" : "🛒 Thêm vào giỏ hàng")
             </button>
+            @if (!sp.HetHang)
+            {
+                <button type="submit" form="buy-now-form" class="btn btn-yellow btn-lg">⚡ Mua ngay</button>
+            }
             <div class="inline-warn qty-warn" id="detail-warn" role="alert" hidden></div>
+        </form>
+        @* "Mua ngay": tới thẳng trang đặt hàng với riêng sản phẩm này (không thêm vào giỏ).
+           site.js chép số lượng đang chọn vào ô soLuong trước khi gửi. *@
+        <form id="buy-now-form" class="js-buy-now" method="get" asp-controller="Checkout" asp-action="Index" hidden>
+            <input type="hidden" name="maSP" value="@sp.MaSP" />
+            <input type="hidden" name="soLuong" value="1" />
         </form>
         @if (Model.TrongGio > 0)
         {
