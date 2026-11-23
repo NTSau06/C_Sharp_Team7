@@ -17,6 +17,12 @@ namespace SportZoneWeb.Controllers
 
         private bool LaAjax => Request.Headers["X-Requested-With"] == "XMLHttpRequest";
 
+        /// <summary>Tạm tính của giỏ hàng, hoặc của riêng sản phẩm "Mua ngay" khi có maSP</summary>
+        private decimal TamTinh(int maKH, int? maSP, int soLuong) =>
+            maSP.HasValue
+                ? _gioHangBLL.TinhTamTinh(_gioHangBLL.LayMuaNgay(maSP.Value, soLuong))
+                : _gioHangBLL.TinhTamTinh(maKH);
+
         [Authorize]
         public IActionResult Index()
         {
@@ -82,10 +88,10 @@ namespace SportZoneWeb.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult ApplyVoucher(string code)
+        public JsonResult ApplyVoucher(string code, int? maSP = null, int soLuong = 1)
         {
             int maKH = User.MaKH().Value;
-            decimal tamTinh = _gioHangBLL.TinhTamTinh(maKH);
+            decimal tamTinh = TamTinh(maKH, maSP, soLuong);
             code = MaGiamGiaBLL.ChuanHoaCode(code);
             if (code == "")
             {
@@ -112,12 +118,12 @@ namespace SportZoneWeb.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RemoveVoucher(string returnUrl = null)
+        public IActionResult RemoveVoucher(string returnUrl = null, int? maSP = null, int soLuong = 1)
         {
             HttpContext.Session.Remove(SessionMaGiamGia);
             if (LaAjax)
             {
-                decimal tamTinh = _gioHangBLL.TinhTamTinh(User.MaKH().Value);
+                decimal tamTinh = TamTinh(User.MaKH().Value, maSP, soLuong);
                 return Json(new { ok = true, thongBao = "Đã bỏ mã giảm giá", tienGiam = WebHelper.Tien(0), tongCong = WebHelper.Tien(tamTinh) });
             }
             TempData["Success"] = "Đã bỏ mã giảm giá.";

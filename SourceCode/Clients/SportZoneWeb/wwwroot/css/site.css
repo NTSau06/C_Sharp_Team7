@@ -124,6 +124,8 @@ code { background: var(--primary-soft); padding: 1px 6px; border-radius: 6px; }
 .btn-link { background: none; color: var(--primary); }
 .btn-danger-link { background: none; color: var(--bad); border: 0; padding: 0 6px; height: auto; font-weight: 600; }
 .btn-block { width: 100%; }
+.product-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.product-actions .btn { flex: 1 1 100px; padding: 0 10px; }
 .btn-lg { height: 48px; font-size: 16px; }
 .btn-sm { height: 32px; padding: 0 12px; font-size: 14px; }
 .icon-btn { width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--bg); cursor: pointer; color: var(--muted); }
@@ -190,7 +192,7 @@ code { background: var(--primary-soft); padding: 1px 6px; border-radius: 6px; }
 
 /* khung ảnh sản phẩm: nền màu danh mục + chữ viết tắt; ảnh (hoặc no-image.svg) phủ lên trên */
 .thumb { position: relative; aspect-ratio: 4 / 3; width: 100%; background: linear-gradient(135deg, var(--c, var(--primary)), color-mix(in srgb, var(--c, var(--primary)) 55%, #fff)); display: grid; place-items: center; overflow: hidden; }
-.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #fff; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
 .thumb-txt { color: rgba(255,255,255,.92); font-weight: 800; font-size: 38px; letter-spacing: 2px; }
 .thumb-lg { aspect-ratio: 4 / 3; border-radius: var(--radius); }
 .thumb-lg .thumb-txt { font-size: 80px; }

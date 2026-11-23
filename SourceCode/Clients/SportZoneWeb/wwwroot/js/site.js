@@ -239,6 +239,15 @@
         });
     });
 
+    // ------------------------------------------------------------ "Mua ngay" ở trang chi tiết: lấy số lượng đang chọn
+    $all('form.js-buy-now').forEach(function (f) {
+        f.addEventListener('submit', function () {
+            var qty = $('form.js-add-cart input[name="soLuong"]');
+            var target = $('input[name="soLuong"]', f);
+            if (qty && target) target.value = qty.value;
+        });
+    });
+
     // ------------------------------------------------------------ áp dụng mã giảm giá (UC 1.2.14)
     var vBtn = $('#voucher-apply'), vInput = $('#voucher-code'), vMsg = $('#voucher-msg'), vRemove = $('#voucher-remove');
     function setTotals(d) {

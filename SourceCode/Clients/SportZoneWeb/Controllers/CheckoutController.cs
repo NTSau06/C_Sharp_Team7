@@ -16,11 +16,14 @@ namespace SportZoneWeb.Controllers
         private readonly GioHangBLL _gioHangBLL = new GioHangBLL();
         private readonly MaGiamGiaBLL _maGiamGiaBLL = new MaGiamGiaBLL();
         private readonly TaiKhoanBLL _taiKhoanBLL = new TaiKhoanBLL();
+        private readonly SanPhamBLL _sanPhamBLL = new SanPhamBLL();
 
         /// <summary>Nạp giỏ hàng, phương thức thanh toán và tính tiền giảm cho form</summary>
         private void NapDuLieu(int maKH, CheckoutVM vm)
         {
-            vm.Items = _gioHangBLL.LayGioHang(maKH);
+            vm.Items = vm.LaMuaNgay
+                ? _gioHangBLL.LayMuaNgay(vm.MuaNgayMaSP.Value, vm.MuaNgaySoLuong)
+                : _gioHangBLL.LayGioHang(maKH);
             vm.PhuongThucs = _thanhToanBLL.LayPhuongThuc();
             vm.TamTinh = _gioHangBLL.TinhTamTinh(vm.Items);
             vm.TienGiam = 0;
@@ -34,9 +37,25 @@ namespace SportZoneWeb.Controllers
             }
         }
 
-        public IActionResult Index()
+        /// <summary>Điền sẵn thông tin giao hàng từ tài khoản; không chọn sẵn phương thức thanh toán (TC23)</summary>
+        private void DienThongTinGiaoHang(int maKH, CheckoutVM vm)
+        {
+            KhachHangDTO kh = _taiKhoanBLL.GetById(maKH);
+            if (kh != null)
+            {
+                vm.HoTenNhan = kh.HoTen;
+                vm.SDT = kh.SDT;
+                vm.DiaChiGiao = kh.DiaChi;
+            }
+            vm.MaPTTT = null;
+        }
+
+        /// <summary>Trang đặt hàng. Có maSP => "Mua ngay": chỉ đặt sản phẩm đó, không thêm vào giỏ hàng.</summary>
+        public IActionResult Index(int? maSP = null, int soLuong = 1)
         {
             int maKH = User.MaKH().Value;
+            if (maSP.HasValue) return MuaNgay(maKH, maSP.Value, soLuong);
+
             var vm = new CheckoutVM { MaGiamGia = HttpContext.Session.GetString(CartController.SessionMaGiamGia) };
             NapDuLieu(maKH, vm);
             if (vm.Items.Count == 0)
@@ -51,17 +70,38 @@ namespace SportZoneWeb.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
-            // Điền sẵn thông tin giao hàng từ tài khoản
-            KhachHangDTO kh = _taiKhoanBLL.GetById(maKH);
-            if (kh != null)
-            {
-                vm.HoTenNhan = kh.HoTen;
-                vm.SDT = kh.SDT;
-                vm.DiaChiGiao = kh.DiaChi;
-            }
-            // Không chọn sẵn phương thức thanh toán: khách phải tự chọn (TC23 - bỏ trống sẽ bị chặn)
-            vm.MaPTTT = null;
+            DienThongTinGiaoHang(maKH, vm);
             return View(vm);
+        }
+
+        private IActionResult MuaNgay(int maKH, int maSP, int soLuong)
+        {
+            SanPhamDTO sp = maSP > 0 ? _sanPhamBLL.GetById(maSP) : null;
+            if (sp == null)
+            {
+                TempData["Warn"] = "Sản phẩm không tồn tại.";
+                return RedirectToAction("Index", "Home");
+            }
+            if (sp.HetHang)
+            {
+                TempData["Warn"] = "Sản phẩm \"" + sp.TenSP + "\" đã hết hàng.";
+                return RedirectToAction("Detail", "Product", new { id = maSP });
+            }
+            int toiDa = Math.Min(sp.SoLuongTon, GioHangBLL.SoLuongToiDaMoiSanPham);
+            if (soLuong > toiDa) TempData["Warn"] = GioHangBLL.ThongBaoVuotTonKho(sp.SoLuongTon) + ". Đã chỉnh về " + toiDa + ".";
+            var vm = new CheckoutVM { MuaNgayMaSP = maSP, MuaNgaySoLuong = Math.Clamp(soLuong, 1, toiDa) };
+            NapDuLieu(maKH, vm);
+            DienThongTinGiaoHang(maKH, vm);
+            return View("Index", vm);
+        }
+
+        /// <summary>Lỗi tồn kho / sản phẩm thay đổi: Mua ngay => về trang sản phẩm, đặt cả giỏ => về giỏ hàng</summary>
+        private IActionResult QuayLaiKhiLoi(CheckoutVM vm, string thongBao)
+        {
+            TempData["Warn"] = thongBao;
+            return vm.LaMuaNgay
+                ? RedirectToAction("Detail", "Product", new { id = vm.MuaNgayMaSP })
+                : RedirectToAction("Index", "Cart");
         }
 
         [HttpPost]
@@ -82,14 +122,12 @@ namespace SportZoneWeb.Controllers
                 }
                 catch (OutOfStockException ex)
                 {
-                    // BR01-BR02: vượt tồn kho khi kiểm tra lần cuối => quay lại giỏ hàng để điều chỉnh
-                    TempData["Warn"] = ex.Message;
-                    return RedirectToAction("Index", "Cart");
+                    // BR01-BR02: vượt tồn kho khi kiểm tra lần cuối => quay lại để điều chỉnh
+                    return QuayLaiKhiLoi(vm, ex.Message);
                 }
                 catch (GioHangThayDoiException ex)
                 {
-                    TempData["Warn"] = ex.Message;
-                    return RedirectToAction("Index", "Cart");
+                    return QuayLaiKhiLoi(vm, ex.Message);
                 }
                 catch (VoucherExpiredException ex)
                 {
@@ -104,7 +142,7 @@ namespace SportZoneWeb.Controllers
             }
 
             NapDuLieu(maKH, vm);
-            if (vm.Items.Count == 0) return RedirectToAction("Index", "Cart");
+            if (vm.Items.Count == 0) return QuayLaiKhiLoi(vm, "Không còn sản phẩm để đặt hàng.");
             return View("Index", vm);
         }
 

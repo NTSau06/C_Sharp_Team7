@@ -6,13 +6,27 @@
 }
 <nav class="breadcrumb">
     <a asp-controller="Home" asp-action="Index">Trang chủ</a> ›
-    <a asp-controller="Cart" asp-action="Index">Giỏ hàng</a> ›
-    <span>Đặt hàng</span>
+    @if (Model.LaMuaNgay)
+    {
+        <a asp-controller="Product" asp-action="Detail" asp-route-id="@Model.MuaNgayMaSP">Sản phẩm</a> <text>›</text>
+        <span>Mua ngay</span>
+    }
+    else
+    {
+        <a asp-controller="Cart" asp-action="Index">Giỏ hàng</a> <text>›</text>
+        <span>Đặt hàng</span>
+    }
 </nav>
 <div class="page-head"><h1>Đặt hàng & thanh toán</h1></div>
 
 @* novalidate: để kiểm tra phía máy chủ (ModelState) hiển thị lỗi ngay dưới từng ô nhập *@
 <form asp-action="Confirm" method="post" class="cart-layout" novalidate>
+    @if (Model.LaMuaNgay)
+    {
+        @* "Mua ngay": chỉ đặt sản phẩm này, giỏ hàng giữ nguyên *@
+        <input type="hidden" asp-for="MuaNgayMaSP" />
+        <input type="hidden" asp-for="MuaNgaySoLuong" />
+    }
     <div>
         <div asp-validation-summary="ModelOnly" class="alert alert-warn"></div>
 
@@ -54,8 +68,8 @@
             <h3>3. Mã giảm giá</h3>
             <div class="input-group">
                 <input type="text" name="MaGiamGia" id="voucher-code" value="@Model.MaGiamGia" placeholder="Nhập mã (nếu có)" maxlength="30" />
-                <button type="button" class="btn btn-outline" id="voucher-apply" data-url="@Url.Action("ApplyVoucher", "Cart")">Áp dụng</button>
-                <button type="button" class="btn btn-danger-link" id="voucher-remove" data-url="@Url.Action("RemoveVoucher", "Cart")"
+                <button type="button" class="btn btn-outline" id="voucher-apply" data-url="@Url.Action("ApplyVoucher", "Cart", Model.LaMuaNgay ? new { maSP = Model.MuaNgayMaSP, soLuong = Model.MuaNgaySoLuong } : null)">Áp dụng</button>
+                <button type="button" class="btn btn-danger-link" id="voucher-remove" data-url="@Url.Action("RemoveVoucher", "Cart", Model.LaMuaNgay ? new { maSP = Model.MuaNgayMaSP, soLuong = Model.MuaNgaySoLuong } : null)"
                         hidden="@(string.IsNullOrEmpty(Model.MaGiamGia))">✕ Bỏ mã</button>
             </div>
             <div class="voucher-msg @(Model.TienGiam > 0 ? "ok" : "bad")" id="voucher-msg">@Model.ThongBaoMa</div>
@@ -79,7 +93,15 @@
         <div class="sum-row"><span>Phí vận chuyển</span><b>Miễn phí</b></div>
         <div class="sum-row total"><span>Tổng thanh toán</span><b id="sum-total">@WebHelper.Tien(Model.TongTien)</b></div>
         <button type="submit" class="btn btn-primary btn-block btn-lg">Hoàn tất đặt hàng</button>
-        <a class="btn btn-link btn-block" asp-controller="Cart" asp-action="Index">← Quay lại giỏ hàng</a>
+        @if (Model.LaMuaNgay)
+        {
+            <a class="btn btn-link btn-block" asp-controller="Product" asp-action="Detail" asp-route-id="@Model.MuaNgayMaSP">← Quay lại sản phẩm</a>
+            <p class="muted small">Mua ngay chỉ đặt sản phẩm này, giỏ hàng của bạn được giữ nguyên.</p>
+        }
+        else
+        {
+            <a class="btn btn-link btn-block" asp-controller="Cart" asp-action="Index">← Quay lại giỏ hàng</a>
+        }
         <p class="muted small">Đơn hàng sẽ ở trạng thái <b>Chờ xác nhận</b>. Cửa hàng sẽ kiểm tra và xác nhận đơn sớm nhất.</p>
     </aside>
 </form>
