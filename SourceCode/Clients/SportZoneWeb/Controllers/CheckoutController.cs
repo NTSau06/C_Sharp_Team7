@@ -47,6 +47,17 @@ namespace SportZoneWeb.Controllers
                 vm.SDT = kh.SDT;
                 vm.DiaChiGiao = kh.DiaChi;
             }
+            // Sổ địa chỉ (bảng DiaChiGiaoHang): ưu tiên địa chỉ mặc định, gửi danh sách cho ô "Chọn từ sổ địa chỉ"
+            List<DiaChiVM> soDiaChi = new DiaChiBLL().LayDanhSach(maKH)
+                .Select(d => new DiaChiVM { Id = d.MaDC, HoTenNhan = d.HoTenNhan, SDT = d.SDT, DiaChi = d.DiaChi, MacDinh = d.MacDinh }).ToList();
+            ViewBag.SoDiaChi = soDiaChi;
+            DiaChiVM macDinh = soDiaChi.FirstOrDefault(d => d.MacDinh);
+            if (macDinh != null)
+            {
+                vm.HoTenNhan = macDinh.HoTenNhan;
+                vm.SDT = macDinh.SDT;
+                vm.DiaChiGiao = macDinh.DiaChi;
+            }
             vm.MaPTTT = null;
         }
 

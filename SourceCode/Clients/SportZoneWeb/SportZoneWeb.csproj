@@ -16,6 +16,8 @@
   <ItemGroup>
     <!-- Dùng chung script tạo CSDL với phân hệ Admin: Web tự tạo SportZoneDB nếu chưa có -->
     <EmbeddedResource Include="..\..\Database\SportZoneDB.sql" Link="Database\SportZoneDB.sql" LogicalName="SportZoneWeb.SportZoneDB.sql" />
+    <!-- Bảng cho chức năng mới (sổ địa chỉ, yêu thích, đánh giá, lịch sử đơn hàng) - chạy mỗi lần khởi động, không xóa dữ liệu -->
+    <EmbeddedResource Include="..\..\Database\CapNhatChucNangWeb.sql" Link="Database\CapNhatChucNangWeb.sql" LogicalName="SportZoneWeb.CapNhatChucNangWeb.sql" />
   </ItemGroup>
 
 </Project>

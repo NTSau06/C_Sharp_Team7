@@ -1,0 +1,112 @@
+@model ChiTietDonVM
+@{
+    var dh = Model.DonHang;
+    ViewData["Title"] = "Đơn hàng #DH" + dh.MaDH;
+    ViewData["TabTaiKhoan"] = "don-hang";
+}
+<nav class="breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Trang chủ</a> ›
+    <a asp-action="Orders">Đơn hàng của tôi</a> ›
+    <span>#DH@(dh.MaDH)</span>
+</nav>
+
+<div class="account-layout">
+    <partial name="_AccountNav" />
+    <div>
+        <section class="card form-card">
+            <div class="order-head">
+                <div>
+                    <h1>Đơn hàng <span class="order-code">#DH@(dh.MaDH)</span></h1>
+                    <span class="muted">Đặt lúc @dh.NgayDat.ToString("HH:mm dd/MM/yyyy")</span>
+                </div>
+                <span class="status @TrangThaiDonHang.CssClass(dh.TrangThai)">@dh.TrangThai</span>
+            </div>
+
+            @* Theo dõi trạng thái đơn hàng *@
+            <ol class="timeline">
+                @foreach (var m in Model.Moc)
+                {
+                    <li class="tl-@m.Kieu">
+                        <span class="tl-dot">@m.Icon</span>
+                        <span class="tl-name">@m.Ten</span>
+                        <span class="tl-time">@m.ThoiGian</span>
+                    </li>
+                }
+            </ol>
+            @if (!string.IsNullOrEmpty(dh.GhiChu))
+            {
+                <p class="small @(dh.TrangThai == TrangThaiDonHang.DaHuy || dh.TrangThai == TrangThaiDonHang.GiaoThatBai ? "text-bad" : "muted")">Ghi chú: @dh.GhiChu</p>
+            }
+        </section>
+
+        <section class="card form-card">
+            <h3>Sản phẩm</h3>
+            <table class="table">
+                <thead><tr><th>Sản phẩm</th><th class="num">SL</th><th class="num">Đơn giá</th><th class="num">Thành tiền</th></tr></thead>
+                <tbody>
+                    @foreach (var ct in dh.ChiTiet)
+                    {
+                        <tr>
+                            <td>
+                                <a class="order-item" asp-controller="Product" asp-action="Detail" asp-route-id="@ct.MaSP">
+                                    <img src="@WebHelper.AnhHoacMacDinh(ct.HinhAnh)" alt="" onerror="@WebHelper.OnErrorAnh" />
+                                    <span>@ct.TenSP</span>
+                                </a>
+                            </td>
+                            <td class="num">@ct.SoLuong</td>
+                            <td class="num">@WebHelper.Tien(ct.DonGia)</td>
+                            <td class="num">@WebHelper.Tien(ct.ThanhTien)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="3">Tạm tính</td><td class="num">@WebHelper.Tien(dh.TamTinh)</td></tr>
+                    @if (dh.TienGiam > 0)
+                    {
+                        <tr><td colspan="3">Giảm giá (@dh.CodeMGG)</td><td class="num text-ok">- @WebHelper.Tien(dh.TienGiam)</td></tr>
+                    }
+                    <tr class="total"><td colspan="3">Tổng thanh toán</td><td class="num">@WebHelper.Tien(dh.TongTien)</td></tr>
+                </tfoot>
+            </table>
+            <div class="order-info">
+                <div><span class="muted small">Giao tới</span><br />@dh.DiaChiGiao</div>
+                <div><span class="muted small">Thanh toán</span><br />@dh.TenPTTT</div>
+            </div>
+        </section>
+
+        <section class="card form-card">
+            <div class="form-actions">
+                <form asp-action="Reorder" method="post">
+                    <input type="hidden" name="id" value="@dh.MaDH" />
+                    <button type="submit" class="btn btn-primary">🛒 Mua lại</button>
+                </form>
+                <a class="btn btn-outline" asp-action="Orders">‹ Danh sách đơn hàng</a>
+            </div>
+
+            @if (Model.CoTheHuy)
+            {
+                <details class="cancel-box" id="huy">
+                    <summary class="btn-danger-link">Hủy đơn hàng</summary>
+                    <form asp-action="CancelOrder" method="post" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn #DH@(dh.MaDH)?');">
+                        <input type="hidden" name="id" value="@dh.MaDH" />
+                        <p class="muted small">Đơn đang chờ xác nhận nên có thể hủy. Lượt dùng mã giảm giá (nếu có) sẽ được hoàn lại.</p>
+                        <div class="reason-list">
+                            @foreach (var ly in ChiTietDonVM.LyDoHuy)
+                            {
+                                <label class="check"><input type="radio" name="lyDo" value="@ly" required /> @ly</label>
+                            }
+                        </div>
+                        <div class="field">
+                            <input type="text" name="lyDoKhac" maxlength="200" placeholder="Nhập lý do khác (nếu chọn 'Lý do khác')" />
+                        </div>
+                        <button type="submit" class="btn btn-danger">Xác nhận hủy đơn</button>
+                    </form>
+                </details>
+            }
+            else if (dh.TrangThai != TrangThaiDonHang.DaHuy)
+            {
+                <p class="muted small">Đơn đã được cửa hàng xác nhận nên không thể tự hủy. Vui lòng liên hệ cửa hàng nếu cần hỗ trợ.</p>
+            }
+        </section>
+    </div>
+</div>

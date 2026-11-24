@@ -93,6 +93,11 @@ namespace SportZoneWeb.DAL
                 CreateDatabase(cs, server);
                 log("Đã tạo CSDL SportZoneDB (11 bảng + dữ liệu mẫu).");
             }
+            if (autoCreate)
+            {
+                CapNhatChucNangMoi(cs, server);
+                log("Đã kiểm tra bảng cho chức năng mới (sổ địa chỉ, yêu thích, đánh giá, lịch sử đơn hàng).");
+            }
             return cs;
         }
 
@@ -132,16 +137,36 @@ namespace SportZoneWeb.DAL
             SqlConnection.ClearAllPools();
         }
 
-        private static string LoadScript()
+        /// <summary>Bổ sung bảng DiaChiGiaoHang, YeuThich, DanhGia, LichSuDonHang + trigger (không xóa dữ liệu)</summary>
+        public static void CapNhatChucNangMoi(string baseConnectionString, string server)
+        {
+            string script = LoadScript(ScriptCapNhatResourceName);
+            using (var conn = new SqlConnection(MasterConnectionString(baseConnectionString, server)))
+            {
+                conn.Open();
+                foreach (string batch in SplitBatches(script))
+                {
+                    using (var cmd = new SqlCommand(batch, conn))
+                    {
+                        cmd.CommandTimeout = 120;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        private const string ScriptCapNhatResourceName = "SportZoneWeb.CapNhatChucNangWeb.sql";
+
+        private static string LoadScript(string resourceName = ScriptResourceName)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
-            using (Stream s = asm.GetManifestResourceStream(ScriptResourceName))
+            using (Stream s = asm.GetManifestResourceStream(resourceName))
             {
                 if (s != null)
                     using (var r = new StreamReader(s, Encoding.UTF8, true))
                         return r.ReadToEnd();
             }
-            throw new FileNotFoundException("Không tìm thấy script Database/SportZoneDB.sql trong project.");
+            throw new FileNotFoundException("Không tìm thấy script " + resourceName + " trong project.");
         }
 
         private static List<string> SplitBatches(string script)

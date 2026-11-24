@@ -42,6 +42,28 @@ namespace SportZoneWeb.DAL
                 DBConnect.P("@kh", dh.MaKH), DBConnect.P("@pt", dh.MaPTTT), DBConnect.PInt("@mgg", dh.MaMGG)));
         }
 
+        /// <summary>
+        /// Khách hủy đơn của mình: chỉ đổi khi đơn còn "Chờ xác nhận" (kiểm tra ngay trong câu UPDATE),
+        /// hoàn 1 lượt dùng mã giảm giá nếu có. Trả về false nếu đơn không còn hủy được.
+        /// </summary>
+        public bool HuyDon(SqlTransaction t, int maKH, int maDH, string lyDo)
+        {
+            // Bảng DonHang có trigger TR_DonHang_LichSu => OUTPUT phải ghi vào biến bảng (OUTPUT ... INTO)
+            DataTable dt = DBConnect.ExecuteQuery(t,
+                "DECLARE @kq TABLE (MaMGG INT NULL); " +
+                "UPDATE DonHang SET TrangThai = N'Đã hủy', GhiChu = @gc OUTPUT inserted.MaMGG INTO @kq " +
+                "WHERE MaDH = @dh AND MaKH = @kh AND TrangThai = N'Chờ xác nhận'; " +
+                "SELECT MaMGG FROM @kq;",
+                DBConnect.P("@gc", lyDo), DBConnect.P("@dh", maDH), DBConnect.P("@kh", maKH));
+            if (dt.Rows.Count == 0) return false;
+            int? maMGG = dt.Rows[0].IntN("MaMGG");
+            if (maMGG.HasValue)
+                DBConnect.ExecuteNonQuery(t,
+                    "UPDATE MaGiamGia SET SoLuotDaDung = SoLuotDaDung - 1 WHERE MaMGG = @m AND SoLuotDaDung > 0",
+                    DBConnect.P("@m", maMGG.Value));
+            return true;
+        }
+
         public void InsertChiTiet(SqlTransaction t, int maDH, int maSP, int soLuong, decimal donGia)
         {
             DBConnect.ExecuteNonQuery(t,

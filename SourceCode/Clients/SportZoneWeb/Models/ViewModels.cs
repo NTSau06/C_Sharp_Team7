@@ -55,6 +55,8 @@ namespace SportZoneWeb.Models
         public List<SanPhamDTO> MoiNhat { get; set; } = new List<SanPhamDTO>();
         public List<SanPhamDTO> BanChay { get; set; } = new List<SanPhamDTO>();
         public List<MaGiamGiaDTO> KhuyenMai { get; set; } = new List<MaGiamGiaDTO>();
+        /// <summary>Sản phẩm khách đã xem gần đây (lưu trong Session)</summary>
+        public List<SanPhamDTO> DaXem { get; set; } = new List<SanPhamDTO>();
         public string ThongBao { get; set; }
     }
 
@@ -63,6 +65,17 @@ namespace SportZoneWeb.Models
         public SanPhamDTO SanPham { get; set; }
         public List<SanPhamDTO> LienQuan { get; set; } = new List<SanPhamDTO>();
         public int TrongGio { get; set; }
+
+        public bool YeuThich { get; set; }
+        public List<SanPhamDTO> DaXem { get; set; } = new List<SanPhamDTO>();
+
+        // Đánh giá, nhận xét
+        public List<DanhGiaDTO> DanhGias { get; set; } = new List<DanhGiaDTO>();
+        public double DiemTrungBinh => DanhGias.Count == 0 ? 0 : DanhGias.Average(d => d.SoSao);
+        public int DemSao(int soSao) => DanhGias.Count(d => d.SoSao == soSao);
+        /// <summary>Chỉ khách đã mua (đơn "Đã giao hàng") mới được đánh giá</summary>
+        public bool DuocDanhGia { get; set; }
+        public DanhGiaDTO DanhGiaCuaToi { get; set; }
     }
 
     /// <summary>Một dòng trong giỏ hàng</summary>

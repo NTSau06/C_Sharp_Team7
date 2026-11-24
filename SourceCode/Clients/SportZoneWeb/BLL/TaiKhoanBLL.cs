@@ -27,6 +27,68 @@ namespace SportZoneWeb.BLL
 
         public KhachHangDTO GetById(int maKH) => taiKhoanDAL.GetKHById(maKH);
 
+        /// <summary>Quên mật khẩu: tìm tài khoản theo tên đăng nhập hoặc email (chỉ đọc CSDL)</summary>
+        public KhachHangDTO TimTaiKhoan(string tenDangNhapHoacEmail)
+        {
+            string s = (tenDangNhapHoacEmail ?? "").Trim();
+            if (s == "") throw new BusinessException("Vui lòng nhập tên đăng nhập hoặc email.");
+            KhachHangDTO kh = taiKhoanDAL.GetKHByUsername(s);
+            if (kh == null || !kh.TrangThai) throw new BusinessException("Không tìm thấy tài khoản với thông tin này.");
+            return kh;
+        }
+
+        /// <summary>Kiểm tra email / SĐT mới không trùng với khách hàng khác (bỏ qua nếu không đổi)</summary>
+        public void KiemTraHoSo(KhachHangDTO hienTai, string email, string sdt)
+        {
+            email = (email ?? "").Trim().ToLowerInvariant();
+            sdt = (sdt ?? "").Trim();
+            if (!string.Equals(email, hienTai.Email, StringComparison.OrdinalIgnoreCase) && taiKhoanDAL.ExistsEmail(email))
+                throw new BusinessException("Email \"" + email + "\" đã được sử dụng.", "Email");
+            if (sdt != hienTai.SDT && taiKhoanDAL.ExistsSDT(sdt))
+                throw new BusinessException("Số điện thoại \"" + sdt + "\" đã được sử dụng.", "SDT");
+        }
+
+        /// <summary>Cập nhật hồ sơ (họ tên, SĐT, email, địa chỉ) vào bảng KhachHang</summary>
+        public void CapNhatHoSo(KhachHangDTO hienTai, string hoTen, string sdt, string email, string diaChi)
+        {
+            hoTen = (hoTen ?? "").Trim();
+            email = (email ?? "").Trim().ToLowerInvariant();
+            sdt = (sdt ?? "").Trim();
+            diaChi = string.IsNullOrWhiteSpace(diaChi) ? null : diaChi.Trim();
+            if (hoTen.Length < 2) throw new BusinessException("Họ tên không hợp lệ.", "HoTen");
+            if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$")) throw new BusinessException("Email không đúng định dạng (ví dụ: ten@gmail.com)", "Email");
+            if (!Regex.IsMatch(sdt, @"^0\d{9,10}$")) throw new BusinessException("Số điện thoại không hợp lệ.", "SDT");
+            KiemTraHoSo(hienTai, email, sdt);
+            taiKhoanDAL.UpdateHoSo(hienTai.MaKH, hoTen, sdt, email, diaChi);
+        }
+
+        /// <summary>Đổi mật khẩu (cần đúng mật khẩu hiện tại), lưu dạng SALT$SHA256</summary>
+        public void DoiMatKhau(int maKH, string matKhauCu, string matKhauMoi)
+        {
+            KiemTraDoiMatKhau(taiKhoanDAL.GetKHById(maKH), matKhauCu, matKhauMoi);
+            taiKhoanDAL.UpdateMatKhau(maKH, PasswordHasher.Hash(matKhauMoi));
+        }
+
+        /// <summary>Đặt lại mật khẩu sau khi xác nhận OTP</summary>
+        public void DatLaiMatKhau(int maKH, string matKhauMoi)
+        {
+            if (string.IsNullOrEmpty(matKhauMoi) || matKhauMoi.Length < 6)
+                throw new BusinessException("Mật khẩu mới tối thiểu 6 ký tự.", "MatKhauMoi");
+            if (!taiKhoanDAL.UpdateMatKhau(maKH, PasswordHasher.Hash(matKhauMoi)))
+                throw new BusinessException("Không tìm thấy tài khoản.");
+        }
+
+        /// <summary>Đổi mật khẩu: kiểm tra mật khẩu hiện tại và mật khẩu mới</summary>
+        public void KiemTraDoiMatKhau(KhachHangDTO kh, string matKhauCu, string matKhauMoi)
+        {
+            if (kh == null || !PasswordHasher.Verify(matKhauCu ?? "", kh.MatKhau))
+                throw new BusinessException("Mật khẩu hiện tại không đúng.", "MatKhauCu");
+            if (string.IsNullOrEmpty(matKhauMoi) || matKhauMoi.Length < 6)
+                throw new BusinessException("Mật khẩu mới tối thiểu 6 ký tự.", "MatKhauMoi");
+            if (matKhauMoi == matKhauCu)
+                throw new BusinessException("Mật khẩu mới phải khác mật khẩu hiện tại.", "MatKhauMoi");
+        }
+
         /// <summary>Đăng ký tài khoản mới, trả về MaKH</summary>
         public int DangKy(KhachHangDTO kh, string matKhau)
         {

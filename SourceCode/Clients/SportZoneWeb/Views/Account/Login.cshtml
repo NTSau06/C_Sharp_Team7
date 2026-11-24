@@ -18,6 +18,7 @@
             <input asp-for="MatKhau" required autocomplete="current-password" />
             <span asp-validation-for="MatKhau" class="field-err"></span>
         </div>
+        <p class="right small"><a asp-action="ForgotPassword">Quên mật khẩu?</a></p>
         <button type="submit" class="btn btn-primary btn-block btn-lg">Đăng nhập</button>
     </form>
     <p class="center">Chưa có tài khoản? <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">Đăng ký ngay</a></p>

@@ -32,6 +32,23 @@
 
         <section class="card form-card">
             <h3>1. Thông tin giao hàng</h3>
+            @{ var soDiaChi = ViewBag.SoDiaChi as List<DiaChiVM> ?? new List<DiaChiVM>(); }
+            @if (soDiaChi.Count > 0)
+            {
+                <div class="field">
+                    <label for="chon-dia-chi">Chọn từ sổ địa chỉ</label>
+                    <select id="chon-dia-chi">
+                        <option value="">— Nhập địa chỉ khác —</option>
+                        @foreach (var dc in soDiaChi)
+                        {
+                            <option value="@dc.Id" data-ten="@dc.HoTenNhan" data-sdt="@dc.SDT" data-dc="@dc.DiaChi" selected="@dc.MacDinh">
+                                @dc.HoTenNhan · @dc.SDT · @dc.DiaChi@(dc.MacDinh ? " (mặc định)" : "")
+                            </option>
+                        }
+                    </select>
+                    <a class="small" asp-controller="Account" asp-action="Addresses">Quản lý sổ địa chỉ ›</a>
+                </div>
+            }
             <div class="field">
                 <label asp-for="HoTenNhan"></label>
                 <input asp-for="HoTenNhan" required maxlength="100" />

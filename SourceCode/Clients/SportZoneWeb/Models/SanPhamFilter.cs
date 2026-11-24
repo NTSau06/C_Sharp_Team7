@@ -11,13 +11,20 @@ namespace SportZoneWeb.Models
         public int? MaDM { get; set; }
         /// <summary>moi | gia-tang | gia-giam | ten | pho-bien</summary>
         public string SapXep { get; set; }
+        /// <summary>Lọc theo thương hiệu / kích cỡ / màu sắc (xem Utils/ThuocTinhSanPham)</summary>
+        public string ThuongHieu { get; set; }
+        public string KichCo { get; set; }
+        public string MauSac { get; set; }
         /// <summary>Trang hiện tại (bắt đầu từ 1) - query string "Page"</summary>
         public int Page { get; set; } = 1;
 
         /// <summary>Số sản phẩm mỗi trang (2 hàng × 4 cột)</summary>
         public const int PageSize = 8;
 
-        public bool DangLoc => GiaTu.HasValue || GiaDen.HasValue || ConHang || MaDM.HasValue;
+        public bool DangLoc => GiaTu.HasValue || GiaDen.HasValue || ConHang || MaDM.HasValue || LocThuocTinh;
+
+        /// <summary>Đang lọc theo thương hiệu / kích cỡ / màu sắc</summary>
+        public bool LocThuocTinh => !string.IsNullOrEmpty(ThuongHieu) || !string.IsNullOrEmpty(KichCo) || !string.IsNullOrEmpty(MauSac);
 
         public static readonly (string Value, string Text)[] CacKieuSapXep =
         {

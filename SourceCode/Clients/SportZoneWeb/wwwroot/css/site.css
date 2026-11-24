@@ -376,3 +376,112 @@ input:focus, select:focus, textarea:focus { outline: 2px solid rgba(44,74,107,.2
     .detail { padding: 14px; gap: 16px; }
     .banner-code b { font-size: 17px; }
 }
+
+
+/* ===================================================================== TÀI KHOẢN: hồ sơ, địa chỉ, mật khẩu */
+.right { text-align: right; }
+.account-layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+.account-nav { padding: 10px; position: sticky; top: 120px; display: flex; flex-direction: column; }
+.account-nav a, .account-nav button { display: block; width: 100%; text-align: left; padding: 10px 12px; border-radius: 9px; color: var(--text); background: none; border: 0; font: inherit; cursor: pointer; }
+.account-nav a:hover, .account-nav button:hover { background: var(--primary-soft); text-decoration: none; }
+.account-nav a.active { background: var(--primary); color: #fff; font-weight: 600; }
+.account-hello { display: flex; gap: 10px; align-items: center; padding: 8px 10px 14px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; flex: none; }
+.form-card.narrow { max-width: 520px; }
+.form-card h1 { font-size: 24px; }
+.form-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+.form-actions form { margin: 0; }
+textarea, select, .field input { font: inherit; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.field input:disabled { background: var(--bg); color: var(--muted); }
+.btn-danger { background: var(--bad); color: #fff; }
+.btn-danger:hover { background: #B71C1C; }
+.steps { display: flex; gap: 6px; margin-bottom: 14px; font-size: 13px; }
+.steps span { flex: 1; text-align: center; padding: 6px 4px; border-radius: 8px; background: var(--bg); color: var(--muted); }
+.steps .active { background: var(--primary); color: #fff; font-weight: 600; }
+.steps .done { background: #E7F6EC; color: var(--ok); }
+.otp-input { font-size: 22px; letter-spacing: 10px; text-align: center; font-weight: 700; }
+.otp-demo { font-size: 18px; letter-spacing: 3px; }
+.address-list { display: flex; flex-direction: column; gap: 10px; }
+.address { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.address.default { border-color: var(--ok); background: #F6FBF7; }
+.address-actions { display: flex; gap: 6px; align-items: center; }
+.address-actions form { margin: 0; }
+
+/* ===================================================================== ĐƠN HÀNG: chi tiết, theo dõi, hủy, mua lại */
+.order-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 4px 0 14px; }
+.order-actions form { margin: 0; }
+.order-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.order-head h1 { margin-bottom: 2px; }
+.order-item { display: flex; align-items: center; gap: 10px; }
+.order-item img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--bg); }
+.order-info { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 14px; }
+.timeline { list-style: none; padding: 0; margin: 22px 0 10px; display: flex; }
+.timeline li { flex: 1; position: relative; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.timeline li::before { content: ""; position: absolute; top: 19px; left: -50%; right: 50%; height: 4px; background: var(--line); z-index: 0; }
+.timeline li:first-child::before { display: none; }
+.tl-dot { position: relative; z-index: 1; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); border: 3px solid var(--line); font-size: 17px; }
+.tl-name { font-weight: 600; font-size: 14px; }
+.tl-time { font-size: 12px; color: var(--muted); }
+.tl-da-qua .tl-dot { background: #E7F6EC; border-color: var(--ok); }
+.tl-da-qua::before, .tl-hien-tai::before, .tl-loi::before { background: var(--ok) !important; }
+.tl-hien-tai .tl-dot { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 0 0 5px var(--primary-soft); }
+.tl-hien-tai .tl-name { color: var(--primary); }
+.tl-loi .tl-dot { background: #FDECEA; border-color: var(--bad); color: var(--bad); }
+.tl-loi .tl-name { color: var(--bad); }
+.tl-cho .tl-name { color: var(--muted); }
+.cancel-box { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.cancel-box summary { cursor: pointer; display: inline-block; }
+.reason-list { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+
+/* ===================================================================== SẢN PHẨM: yêu thích, đánh giá, bộ lọc thuộc tính */
+.product { position: relative; }
+.wish-form { position: absolute; top: 8px; right: 8px; z-index: 3; margin: 0; }
+.wish-btn { width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: var(--bad); font-size: 18px; line-height: 1; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+.wish-btn:hover, .wish-btn.active { background: #fff; transform: scale(1.08); }
+.wish-inline { margin: 10px 0 0; }
+.wish-icon { font-size: 21px; line-height: 1; }
+.stars { --p: 0%; display: inline-block; font-size: 16px; letter-spacing: 2px; line-height: 1;
+    background: linear-gradient(90deg, var(--search) var(--p), #D7DEE6 var(--p)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.stars::before { content: "★★★★★"; }
+.rating-line { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.reviews { padding: 22px; }
+.review-summary { display: flex; gap: 30px; flex-wrap: wrap; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.review-score { display: flex; flex-direction: column; align-items: center; }
+.review-score b { font-size: 36px; line-height: 1; color: var(--text); }
+.review-bars { flex: 1; min-width: 220px; max-width: 420px; }
+.review-bar { display: grid; grid-template-columns: 34px 1fr 26px; gap: 8px; align-items: center; font-size: 13px; }
+.review-bar .bar { height: 8px; background: var(--bg); border-radius: 6px; overflow: hidden; }
+.review-bar .bar span { display: block; height: 100%; background: var(--search); }
+.review-form { display: flex; flex-direction: column; gap: 10px; background: var(--bg); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+.review-form .btn { align-self: flex-start; }
+.star-input { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: 2px; }
+.star-input input { position: absolute; opacity: 0; pointer-events: none; }
+.star-input label { font-size: 28px; color: #D7DEE6; cursor: pointer; line-height: 1; }
+.star-input label:hover, .star-input label:hover ~ label, .star-input input:checked ~ label { color: var(--search); }
+.review { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.review:last-child { border-bottom: 0; }
+.review-head { display: flex; gap: 10px; align-items: center; }
+.review p { margin: 8px 0 0 50px; }
+.size-list, .color-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.size input, .color input { position: absolute; opacity: 0; pointer-events: none; }
+.size span { display: inline-block; min-width: 38px; text-align: center; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; cursor: pointer; background: #fff; }
+.size input:checked + span { background: var(--primary); border-color: var(--primary); color: #fff; }
+.color { cursor: pointer; }
+.swatch { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--m); border: 2px solid #fff; box-shadow: 0 0 0 1px #CBD5E1; vertical-align: middle; }
+.color input:checked + .swatch { box-shadow: 0 0 0 2px var(--primary); }
+.swatch-name { margin-right: 10px; font-size: 14px; }
+
+@media (max-width: 992px) {
+    .account-layout { grid-template-columns: 1fr; }
+    .account-nav { position: static; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+    .account-nav a, .account-nav button { width: auto; }
+    .account-hello { display: none; }
+}
+@media (max-width: 576px) {
+    .timeline { flex-direction: column; gap: 14px; }
+    .timeline li { flex-direction: row; text-align: left; gap: 10px; }
+    .timeline li::before { display: none; }
+    .tl-time { margin-left: auto; }
+    .order-info { grid-template-columns: 1fr; }
+    .review p { margin-left: 0; }
+}
