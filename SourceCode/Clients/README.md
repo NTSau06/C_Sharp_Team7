@@ -50,14 +50,14 @@ Mã giảm giá mẫu: `SPORT10` (đơn từ 500.000đ), `CHAOHE20` (đơn từ 
 ## 5. Ảnh & giao diện
 ```
 wwwroot/images/
-├── sp01-bong-da-ucv.svg … sp20-bong-ban-dhs.svg   ảnh 20 sản phẩm mẫu (+ bản .png cùng tên cho Admin)
+├── sp01-bong-da-ucv.jpg … sp20-bong-ban-dhs.jpg   ảnh 20 sản phẩm mẫu (dùng chung cho Web và Admin)
 ├── banners/       banner khuyến mãi trang chủ
 ├── categories/    ảnh đại diện 7 danh mục
 ├── brand/         logo.svg, logo-dark.svg, favicon.svg/.ico
 └── placeholders/  no-image.svg
 ```
 - Cột `SanPham.HinhAnh` chỉ lưu **tên file**. Admin chép ảnh vào đúng thư mục này (`App.config` → `ImageFolder`),
-  nên ảnh chọn trên Admin hiện ngay trên Web. WinForms không đọc được SVG nên Admin tự dùng bản `.png` cùng tên.
+  nên ảnh chọn trên Admin hiện ngay trên Web (cả Web và WinForms Admin đều đọc trực tiếp ảnh `.jpg`).
 - `HinhAnh = NULL` hoặc file ảnh lỗi → hiển thị `placeholders/no-image.svg` (không bao giờ vỡ ảnh).
 - CSDL tạo **trước** khi có ảnh mẫu: chạy `Database/CapNhatHinhAnh.sql` (không xóa dữ liệu) hoặc bấm
   "Tạo lại CSDL mẫu" ở màn hình đăng nhập Admin (xóa toàn bộ dữ liệu).

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.Drawing;
 using System.IO;
@@ -35,8 +35,7 @@ namespace SportZoneAdmin.Utils
 
         /// <summary>
         /// Đọc ảnh (không khóa file). Trả về null nếu không có.
-        /// GDI+ không đọc được SVG: với ảnh .svg (20 sản phẩm mẫu, Web hiển thị bản vector)
-        /// chương trình dùng bản .png cùng tên nằm cạnh file .svg.
+        /// Nếu CSDL cũ còn lưu tên ảnh mẫu .svg/.png đã xóa thì tự chuyển sang bản .jpg cùng tên.
         /// </summary>
         public static Image Load(string fileName)
         {
@@ -44,8 +43,10 @@ namespace SportZoneAdmin.Utils
             try
             {
                 string path = Path.Combine(Folder, fileName.Trim());
-                if (string.Equals(Path.GetExtension(path), ".svg", StringComparison.OrdinalIgnoreCase))
-                    path = Path.ChangeExtension(path, ".png");
+                string ext = Path.GetExtension(path);
+                if (string.Equals(ext, ".svg", StringComparison.OrdinalIgnoreCase)
+                    || (!File.Exists(path) && string.Equals(ext, ".png", StringComparison.OrdinalIgnoreCase)))
+                    path = Path.ChangeExtension(path, ".jpg");
                 if (!File.Exists(path)) return null;
                 byte[] bytes = File.ReadAllBytes(path);
                 using (var ms = new MemoryStream(bytes))
