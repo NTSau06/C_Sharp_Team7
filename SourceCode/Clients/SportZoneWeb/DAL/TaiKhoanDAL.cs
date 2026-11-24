@@ -51,6 +51,20 @@ namespace SportZoneWeb.DAL
             return Convert.ToInt32(DBConnect.ExecuteScalar("SELECT COUNT(*) FROM KhachHang WHERE SDT = @s", DBConnect.P("@s", sdt))) > 0;
         }
 
+        public bool UpdateHoSo(int maKH, string hoTen, string sdt, string email, string diaChi)
+        {
+            return DBConnect.ExecuteNonQuery(
+                "UPDATE KhachHang SET HoTen = @ten, SDT = @sdt, Email = @email, DiaChi = @dc WHERE MaKH = @id",
+                DBConnect.P("@ten", hoTen), DBConnect.P("@sdt", sdt), DBConnect.P("@email", email),
+                DBConnect.P("@dc", diaChi), DBConnect.P("@id", maKH)) > 0;
+        }
+
+        public bool UpdateMatKhau(int maKH, string matKhauDaBam)
+        {
+            return DBConnect.ExecuteNonQuery("UPDATE KhachHang SET MatKhau = @mk WHERE MaKH = @id",
+                DBConnect.P("@mk", matKhauDaBam), DBConnect.P("@id", maKH)) > 0;
+        }
+
         public int InsertKhachHang(KhachHangDTO kh)
         {
             const string sql =

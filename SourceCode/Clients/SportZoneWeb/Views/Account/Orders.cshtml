@@ -66,8 +66,19 @@ else
             <p class="muted small">Thanh toán: @dh.TenPTTT · Giao tới: @dh.DiaChiGiao</p>
             @if (!string.IsNullOrEmpty(dh.GhiChu))
             {
-                <p class="small text-bad">Ghi chú từ cửa hàng: @dh.GhiChu</p>
+                <p class="small text-bad">Ghi chú: @dh.GhiChu</p>
             }
+            <div class="order-actions">
+                <a class="btn btn-sm btn-outline" asp-action="OrderDetail" asp-route-id="@dh.MaDH">Xem chi tiết & theo dõi</a>
+                <form asp-action="Reorder" method="post">
+                    <input type="hidden" name="id" value="@dh.MaDH" />
+                    <button type="submit" class="btn btn-sm btn-primary">🛒 Mua lại</button>
+                </form>
+                @if (dh.TrangThai == TrangThaiDonHang.ChoXacNhan)
+                {
+                    <a class="btn-danger-link small" href="@Url.Action("OrderDetail", new { id = dh.MaDH })#huy">Hủy đơn</a>
+                }
+            </div>
         </details>
     }
 }

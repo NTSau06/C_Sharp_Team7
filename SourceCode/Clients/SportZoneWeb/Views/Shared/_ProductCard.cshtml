@@ -1,5 +1,11 @@
 @model SanPhamDTO
+@{ bool yeuThich = Context.YeuThich().Contains(Model.MaSP); }
 <div class="card product">
+    <form asp-controller="Wishlist" asp-action="Toggle" method="post" class="wish-form">
+        <input type="hidden" name="maSP" value="@Model.MaSP" />
+        <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+        <button type="submit" class="wish-btn @(yeuThich ? "active" : "")" title="@(yeuThich ? "Bỏ yêu thích" : "Thêm vào yêu thích")" aria-label="Yêu thích">@(yeuThich ? "♥" : "♡")</button>
+    </form>
     <a class="product-img" asp-controller="Product" asp-action="Detail" asp-route-id="@Model.MaSP">
         @WebHelper.Anh(Model.HinhAnh, Model.TenSP, Model.MaDM)
         @if (Model.HetHang)

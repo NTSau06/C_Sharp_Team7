@@ -47,6 +47,23 @@ Mã giảm giá mẫu: `SPORT10` (đơn từ 500.000đ), `CHAOHE20` (đơn từ 
 > CSDL không có cột thương hiệu, nên bộ lọc dùng: khoảng giá, loại sản phẩm (danh mục), còn hàng.
 > Gửi email xác nhận chưa được cài đặt (cần máy chủ SMTP); trang "Đặt hàng thành công" hiển thị mã đơn thay thế.
 
+## 4b. Chức năng bổ sung (tài khoản, đơn hàng, sản phẩm)
+
+Khi khởi động, Web tự chạy `Database/CapNhatChucNangWeb.sql` (không xóa dữ liệu, chạy lại nhiều lần được) để thêm 4 bảng:
+
+| Bảng | Dùng cho |
+|---|---|
+| `DiaChiGiaoHang` | Sổ địa chỉ (tối đa 5, một địa chỉ mặc định, chọn nhanh khi đặt hàng) |
+| `YeuThich` | Danh sách sản phẩm yêu thích (cần đăng nhập) |
+| `DanhGia` | Đánh giá 1-5 sao + nhận xét, chỉ khách có đơn "Đã giao hàng" chứa sản phẩm |
+| `LichSuDonHang` + trigger `TR_DonHang_LichSu` | Mốc thời gian đổi trạng thái đơn (ghi tự động cho cả Web và Admin) |
+
+- **Hồ sơ cá nhân / Đổi mật khẩu** (`/Account/Profile`, `/Account/ChangePassword`): cập nhật bảng `KhachHang`; đổi mật khẩu cần mật khẩu hiện tại.
+- **Quên mật khẩu** (`/Account/ForgotPassword`): mã OTP 6 số, hiệu lực 5 phút, sai quá 5 lần phải lấy mã mới. Chưa cấu hình SMTP nên mã được hiển thị trên trang để chạy thử.
+- **Đơn hàng**: trang chi tiết `/Account/OrderDetail/{id}` có thanh theo dõi trạng thái; **Hủy đơn** khi còn "Chờ xác nhận" (hoàn lượt dùng mã giảm giá trong cùng transaction); **Mua lại** thêm sản phẩm của đơn cũ vào giỏ.
+- **Sản phẩm**: sản phẩm liên quan, đã xem gần đây (lưu trong Session), lọc theo thương hiệu / kích cỡ / màu (CSDL chưa có các cột này nên suy ra trong `Utils/ThuocTinhSanPham.cs`).
+- Admin bấm "Tạo lại CSDL mẫu" sẽ xóa cả 4 bảng mới; chạy lại Web để tạo lại.
+
 ## 5. Ảnh & giao diện
 ```
 wwwroot/images/

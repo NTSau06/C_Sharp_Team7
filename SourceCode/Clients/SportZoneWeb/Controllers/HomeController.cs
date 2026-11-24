@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using SportZoneWeb.BLL;
 using SportZoneWeb.Models;
+using SportZoneWeb.Utils;
 
 namespace SportZoneWeb.Controllers
 {
@@ -29,6 +30,7 @@ namespace SportZoneWeb.Controllers
                 vm.MoiNhat = _sanPhamBLL.MoiNhat(8);
                 vm.BanChay = _sanPhamBLL.BanChay(4);
                 vm.KhuyenMai = _maGiamGiaBLL.DangHieuLuc();
+                vm.DaXem = _sanPhamBLL.TheoDanhSachMa(HttpContext.Session.DaXem().Take(4));
             }
             catch (Exception ex)
             {

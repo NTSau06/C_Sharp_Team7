@@ -1,6 +1,7 @@
 using SportZoneWeb.DAL;
 using SportZoneWeb.DTO;
 using SportZoneWeb.Models;
+using SportZoneWeb.Utils;
 
 namespace SportZoneWeb.BLL
 {
@@ -46,6 +47,16 @@ namespace SportZoneWeb.BLL
         private KetQuaTrang<SanPhamDTO> LayTrang(string tuKhoa, int? maDM, SanPhamFilter f)
         {
             var kq = new KetQuaTrang<SanPhamDTO> { PageSize = SanPhamFilter.PageSize };
+            if (f.LocThuocTinh)
+            {
+                // CSDL chưa có cột thương hiệu / kích cỡ / màu => lấy toàn bộ kết quả rồi lọc và phân trang trong bộ nhớ
+                List<SanPhamDTO> tatCa = dal.Search(tuKhoa, maDM, f).Where(sp => ThuocTinhSanPham.Khop(sp, f)).ToList();
+                kq.TotalItems = tatCa.Count;
+                kq.Page = Math.Min(Math.Max(1, f.Page), kq.TotalPages);
+                f.Page = kq.Page;
+                kq.Items = tatCa.Skip((kq.Page - 1) * kq.PageSize).Take(kq.PageSize).ToList();
+                return kq;
+            }
             kq.TotalItems = dal.CountSearch(tuKhoa, maDM, f);
             kq.Page = Math.Min(Math.Max(1, f.Page), kq.TotalPages);
             f.Page = kq.Page;
@@ -68,6 +79,31 @@ namespace SportZoneWeb.BLL
 
         public List<SanPhamDTO> BanChay(int top) => dal.GetBanChay(top);
 
-        public List<SanPhamDTO> LienQuan(SanPhamDTO sp, int top) => dal.GetCungDanhMuc(sp.MaDM, sp.MaSP, top);
+        /// <summary>Sản phẩm liên quan: cùng danh mục trước, thiếu thì bổ sung sản phẩm bán chạy</summary>
+        public List<SanPhamDTO> LienQuan(SanPhamDTO sp, int top)
+        {
+            List<SanPhamDTO> ds = dal.GetCungDanhMuc(sp.MaDM, sp.MaSP, top);
+            if (ds.Count < top)
+            {
+                foreach (SanPhamDTO x in dal.GetBanChay(top * 2))
+                {
+                    if (ds.Count >= top) break;
+                    if (x.MaSP != sp.MaSP && ds.All(d => d.MaSP != x.MaSP)) ds.Add(x);
+                }
+            }
+            return ds;
+        }
+
+        /// <summary>Lấy danh sách sản phẩm theo thứ tự mã cho trước (yêu thích, đã xem), bỏ mã không còn tồn tại</summary>
+        public List<SanPhamDTO> TheoDanhSachMa(IEnumerable<int> dsMa)
+        {
+            var ds = new List<SanPhamDTO>();
+            foreach (int ma in dsMa)
+            {
+                SanPhamDTO sp = dal.GetById(ma);
+                if (sp != null) ds.Add(sp);
+            }
+            return ds;
+        }
     }
 }
