@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using SportZoneAdmin.BLL;
@@ -27,6 +28,9 @@ namespace SportZoneAdmin.GUI
         private int currentId;
         private readonly Font strikeFont = new Font("Segoe UI", 10F, FontStyle.Strikeout);
 
+        private readonly ErrorProvider ep;
+        private readonly Dictionary<string, Control> errFields;
+
         public frmKhachHang()
         {
             UiHelper.SetupChild(this, "Quản lý tài khoản khách hàng");
@@ -52,6 +56,11 @@ namespace SportZoneAdmin.GUI
             txtEmail = UiHelper.AddField(fields, "Email (*):", new TextBox { MaxLength = 100 });
             txtDiaChi = UiHelper.AddField(fields, "Địa chỉ:", UiHelper.MakeMultiline(60));
             txtDiaChi.MaxLength = 255;
+            ep = UiHelper.MakeErrorProvider(this);
+            errFields = new Dictionary<string, Control>
+            {
+                { "HoTen", txtHoTen }, { "TenDangNhap", txtTDN }, { "MatKhau", txtMK }, { "SDT", txtSDT }, { "Email", txtEmail }
+            };
 
             Button btnNew = UiHelper.MakeButton("Thêm mới", UiHelper.Blue, 105);
             Button btnSave = UiHelper.MakeButton("Lưu", UiHelper.Primary, 80);
@@ -110,7 +119,7 @@ namespace SportZoneAdmin.GUI
             currentId = kh.MaKH;
             lblMa.Text = kh.MaKH.ToString();
             lblTrangThai.Text = kh.TrangThaiText;
-            lblTrangThai.ForeColor = kh.TrangThai ? UiHelper.Primary : UiHelper.Danger;
+            lblTrangThai.ForeColor = kh.TrangThai ? UiHelper.Success : UiHelper.Danger;
             txtHoTen.Text = kh.HoTen;
             txtTDN.Text = kh.TenDangNhap;
             txtMK.Clear();
@@ -154,8 +163,10 @@ namespace SportZoneAdmin.GUI
             };
             bool isNew = currentId == 0;
             int id = 0;
-            if (!UiHelper.Try(this, () => id = bll.Save(kh, txtMK.Text))) return;
-            UiHelper.Info(this, isNew ? "Tạo tài khoản khách hàng thành công." : "Cập nhật thông tin khách hàng thành công.");
+            if (!UiHelper.TrySave(this, ep, errFields, () => id = bll.Save(kh, txtMK.Text))) return;
+            UiHelper.Info(this, isNew
+                ? "Tạo tài khoản khách hàng thành công.\n" + bll.ThongBaoEmail
+                : "Cập nhật thông tin khách hàng thành công.");
             Search(false);
             SelectRow(id);
         }

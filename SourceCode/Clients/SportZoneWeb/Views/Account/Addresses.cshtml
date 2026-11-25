@@ -1,0 +1,83 @@
+@model SoDiaChiVM
+@{
+    ViewData["Title"] = "Sổ địa chỉ";
+    ViewData["TabTaiKhoan"] = "dia-chi";
+    bool dangSua = Model.Form.Id > 0;
+}
+<nav class="breadcrumb"><a asp-controller="Home" asp-action="Index">Trang chủ</a> › <span>Sổ địa chỉ</span></nav>
+
+<div class="account-layout">
+    <partial name="_AccountNav" />
+    <div>
+        <section class="card form-card">
+            <h1>Sổ địa chỉ giao hàng</h1>
+            <p class="muted">Lưu tối đa 5 địa chỉ. Địa chỉ mặc định được điền sẵn khi đặt hàng.</p>
+            @if (Model.DanhSach.Count == 0)
+            {
+                <div class="empty"><div class="empty-icon">📍</div><p>Bạn chưa lưu địa chỉ nào.</p></div>
+            }
+            <div class="address-list">
+                @foreach (var dc in Model.DanhSach)
+                {
+                    <div class="address @(dc.MacDinh ? "default" : "")">
+                        <div class="address-info">
+                            <b>@dc.HoTenNhan</b> <span class="muted">· @dc.SDT</span>
+                            @if (dc.MacDinh)
+                            {
+                                <span class="status st-ok">Mặc định</span>
+                            }
+                            <div>@dc.DiaChi</div>
+                        </div>
+                        <div class="address-actions">
+                            <a class="btn btn-sm btn-outline" asp-action="Addresses" asp-route-sua="@dc.Id">Sửa</a>
+                            @if (!dc.MacDinh)
+                            {
+                                <form asp-action="SetDefaultAddress" method="post">
+                                    <input type="hidden" name="id" value="@dc.Id" />
+                                    <button type="submit" class="btn btn-sm btn-link">Đặt mặc định</button>
+                                </form>
+                            }
+                            <form asp-action="DeleteAddress" method="post" onsubmit="return confirm('Xóa địa chỉ này?');">
+                                <input type="hidden" name="id" value="@dc.Id" />
+                                <button type="submit" class="btn-danger-link">Xóa</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="card form-card" id="form-dia-chi">
+            <h3>@(dangSua ? "Sửa địa chỉ" : "Thêm địa chỉ mới")</h3>
+            <form asp-action="SaveAddress" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-warn"></div>
+                <input type="hidden" asp-for="Form.Id" />
+                <div class="form-grid">
+                    <div class="field">
+                        <label asp-for="Form.HoTenNhan"></label>
+                        <input asp-for="Form.HoTenNhan" required maxlength="100" />
+                        <span asp-validation-for="Form.HoTenNhan" class="field-err"></span>
+                    </div>
+                    <div class="field">
+                        <label asp-for="Form.SDT"></label>
+                        <input asp-for="Form.SDT" type="tel" required maxlength="11" />
+                        <span asp-validation-for="Form.SDT" class="field-err"></span>
+                    </div>
+                    <div class="field span-2">
+                        <label asp-for="Form.DiaChi"></label>
+                        <textarea asp-for="Form.DiaChi" rows="2" required maxlength="200" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                        <span asp-validation-for="Form.DiaChi" class="field-err"></span>
+                    </div>
+                </div>
+                <label class="check"><input asp-for="Form.MacDinh" /> Đặt làm địa chỉ mặc định</label>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">@(dangSua ? "Lưu địa chỉ" : "Thêm địa chỉ")</button>
+                    @if (dangSua)
+                    {
+                        <a class="btn btn-link" asp-action="Addresses">Hủy sửa</a>
+                    }
+                </div>
+            </form>
+        </section>
+    </div>
+</div>

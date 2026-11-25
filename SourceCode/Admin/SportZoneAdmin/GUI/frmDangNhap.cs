@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using SportZoneAdmin.BLL;
 using SportZoneAdmin.DAL;
@@ -16,7 +17,6 @@ namespace SportZoneAdmin.GUI
         private readonly TextBox txtServer = new TextBox();
         private readonly TextBox txtUser;
         private readonly TextBox txtPass;
-        private readonly CheckBox chkShow;
         private readonly Button btnLogin;
         private readonly Button btnExit;
         private readonly Label lblHint;
@@ -26,59 +26,64 @@ namespace SportZoneAdmin.GUI
         {
             Text = "Đăng nhập - SportZone Admin";
             Font = UiHelper.BaseFont;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
-            MinimizeBox = false;
+            MinimizeBox = true;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(440, 420);
+            ClientSize = new Size(880, 540);
             BackColor = Color.White;
 
-            var header = new Panel { Dock = DockStyle.Top, Height = 100, BackColor = UiHelper.Primary };
-            header.Controls.Add(new Label
-            {
-                Text = "SPORTZONE\nPhân hệ Quản trị",
-                Dock = DockStyle.Fill,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
-                TextAlign = ContentAlignment.MiddleCenter
-            });
+            // ----- cột trái: thương hiệu
+            var brand = new Panel { Dock = DockStyle.Left, Width = 380 };
+            brand.Paint += PaintBrand;
 
-            var table = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, Padding = new Padding(24, 20, 24, 0) };
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            txtUser = UiHelper.AddField(table, "Tên đăng nhập:", new TextBox());
-            txtPass = UiHelper.AddField(table, "Mật khẩu:", new TextBox { UseSystemPasswordChar = true });
-            chkShow = UiHelper.AddField(table, "", new CheckBox { Text = "Hiện mật khẩu", AutoSize = true });
-            chkShow.CheckedChanged += (s, e) => txtPass.UseSystemPasswordChar = !chkShow.Checked;
+            // ----- cột phải: form đăng nhập (định vị cố định vì form không đổi kích thước)
+            var right = new Panel { Dock = DockStyle.Fill, BackColor = Color.White };
+            const int x = 64, w = 372;
 
-            var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 60, Padding = new Padding(150, 14, 0, 0) };
-            btnLogin = UiHelper.MakeButton("Đăng nhập", UiHelper.Primary, 120);
-            btnExit = UiHelper.MakeButton("Thoát", UiHelper.Gray, 100);
-            buttons.Controls.Add(btnLogin);
-            buttons.Controls.Add(btnExit);
+            var lblTitle = new Label { Text = "Đăng nhập", Font = new Font("Segoe UI", 20F, FontStyle.Bold), ForeColor = UiHelper.TextColor, AutoSize = true, Location = new Point(x - 3, 52) };
+            var lblSub = new Label { Text = "Chào mừng trở lại! Đăng nhập để quản lý cửa hàng.", ForeColor = UiHelper.Muted, AutoSize = true, Location = new Point(x, 100) };
+
+            var lblUser = new Label { Text = "Tên đăng nhập", Font = new Font("Segoe UI Semibold", 9.75F), ForeColor = UiHelper.TextColor, AutoSize = true, Location = new Point(x, 148) };
+            txtUser = new TextBox();
+            var boxUser = new InputBox(Glyph.User, txtUser) { Location = new Point(x, 172), Width = w };
+
+            var lblPass = new Label { Text = "Mật khẩu", Font = new Font("Segoe UI Semibold", 9.75F), ForeColor = UiHelper.TextColor, AutoSize = true, Location = new Point(x, 234) };
+            txtPass = new TextBox { UseSystemPasswordChar = true };
+            var boxPass = new InputBox(Glyph.Lock, txtPass, true) { Location = new Point(x, 258), Width = w };
+
+            btnLogin = UiHelper.MakeButton("Đăng nhập", UiHelper.Primary, w);
+            btnLogin.Height = 46;
+            btnLogin.Font = new Font("Segoe UI Semibold", 11F);
+            btnLogin.Location = new Point(x, 332);
+            btnExit = UiHelper.MakeButton("Thoát", UiHelper.Gray, w);
+            btnExit.Height = 40;
+            btnExit.Location = new Point(x, 388);
 
             lblHint = new Label
             {
                 Text = HintMacDinh,
-                Dock = DockStyle.Bottom,
-                Height = 30,
-                ForeColor = Color.Gray,
-                TextAlign = ContentAlignment.MiddleCenter
+                ForeColor = UiHelper.Muted,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Location = new Point(x, 444),
+                Size = new Size(w, 24)
             };
             lnkTaoLai = new LinkLabel
             {
                 Text = "Tạo lại CSDL mẫu (xóa dữ liệu hiện tại)",
-                Dock = DockStyle.Bottom,
-                Height = 26,
-                TextAlign = ContentAlignment.MiddleCenter
+                TextAlign = ContentAlignment.MiddleCenter,
+                Location = new Point(x, 478),
+                Size = new Size(w, 28),
+                LinkColor = UiHelper.Primary,
+                ActiveLinkColor = UiHelper.PrimaryDark,
+                // Gạch chân thường trực đè lên dấu nặng (ạ, ệ...) làm chữ trông như thiếu dấu -> chỉ gạch chân khi rê chuột
+                LinkBehavior = LinkBehavior.HoverUnderline
             };
             lnkTaoLai.LinkClicked += LnkTaoLai_LinkClicked;
 
-            Controls.Add(lnkTaoLai);
-            Controls.Add(lblHint);
-            Controls.Add(buttons);
-            Controls.Add(table);
-            Controls.Add(header);
+            right.Controls.AddRange(new Control[] { lblTitle, lblSub, lblUser, boxUser, lblPass, boxPass, btnLogin, btnExit, lblHint, lnkTaoLai });
+            Controls.Add(right);
+            Controls.Add(brand);
 
             AcceptButton = btnLogin;
             CancelButton = btnExit;
@@ -89,6 +94,51 @@ namespace SportZoneAdmin.GUI
             catch (Exception ex) { txtServer.Text = "."; UiHelper.Warn(this, ex.Message); }
             txtUser.Text = "admin";
             Shown += (s, e) => txtPass.Focus();
+        }
+
+        /// <summary>Vẽ cột thương hiệu: nền chuyển màu xanh đậm, logo, khẩu hiệu và các tính năng chính</summary>
+        private static void PaintBrand(object sender, PaintEventArgs e)
+        {
+            var p = (Panel)sender;
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            using (var bg = new LinearGradientBrush(p.ClientRectangle, UiHelper.PrimaryDark, UiHelper.Primary, 60F))
+                g.FillRectangle(bg, p.ClientRectangle);
+            // họa tiết tròn mờ
+            using (var b = new SolidBrush(Color.FromArgb(18, 255, 255, 255)))
+            {
+                g.FillEllipse(b, p.Width - 170, -90, 280, 280);
+                g.FillEllipse(b, -120, p.Height - 170, 260, 260);
+            }
+
+            var logo = new Rectangle(44, 56, 56, 56);
+            using (GraphicsPath path = UiHelper.RoundedRect(logo, 14))
+            using (var b = new SolidBrush(UiHelper.Accent))
+                g.FillPath(b, path);
+            using (var f = new Font("Segoe UI", 17F, FontStyle.Bold))
+                TextRenderer.DrawText(g, "SZ", f, logo, UiHelper.PrimaryDark, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+
+            using (var f = new Font("Segoe UI", 24F, FontStyle.Bold))
+                TextRenderer.DrawText(g, "SPORTZONE", f, new Point(40, 134), Color.White);
+            using (var f = new Font("Segoe UI", 11F))
+                TextRenderer.DrawText(g, "Phân hệ quản trị cửa hàng\ndụng cụ thể thao", f, new Rectangle(44, 182, p.Width - 80, 50), Color.FromArgb(203, 215, 230), TextFormatFlags.WordBreak);
+
+            string[] features =
+            {
+                "Quản lý sản phẩm, tồn kho và nhập kho",
+                "Xử lý đơn hàng đặt từ website",
+                "Mã giảm giá và thống kê doanh thu"
+            };
+            int y = 268;
+            foreach (string ft in features)
+            {
+                var circle = new Rectangle(44, y, 26, 26);
+                using (var b = new SolidBrush(Color.FromArgb(40, 255, 255, 255))) g.FillEllipse(b, circle);
+                TextRenderer.DrawText(g, Glyph.Check, UiHelper.IconFont(9F), circle, UiHelper.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                TextRenderer.DrawText(g, ft, UiHelper.BaseFont, new Rectangle(82, y, p.Width - 110, 26), Color.White, TextFormatFlags.VerticalCenter);
+                y += 42;
+            }
+            TextRenderer.DrawText(g, "Nhóm 07 · Trường Đại học Sài Gòn", UiHelper.SmallFont, new Point(44, p.Height - 46), Color.FromArgb(160, 178, 200));
         }
 
         private void BtnLogin_Click(object sender, EventArgs e)
@@ -174,6 +224,8 @@ namespace SportZoneAdmin.GUI
                             "trên máy chủ \"" + server + "\".\n\nĐăng nhập: admin / admin123");
                 }
 
+                BaoTrangThai("Đang cập nhật chức năng Web và thanh toán...");
+                DatabaseInitializer.ApplyWebUpdates(server);
                 DBConnect.TestConnection();
                 return server;
             }

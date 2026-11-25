@@ -16,6 +16,7 @@ namespace SportZoneAdmin.DTO
     {
         SanPham,
         DanhMuc,
+        MaGiamGia,
         KhachHang,
         PhuongThucThanhToan
     }

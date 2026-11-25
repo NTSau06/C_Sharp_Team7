@@ -8,8 +8,23 @@
     <p>Mã đơn hàng của bạn: <b class="order-code">#@("DH" + Model.MaDH)</b></p>
     <p class="muted">Ngày đặt: @Model.NgayDat.ToString("dd/MM/yyyy HH:mm") · Trạng thái: <span class="status @TrangThaiDonHang.CssClass(Model.TrangThai)">@Model.TrangThai</span></p>
 
-    @* Phạm vi đề tài (mục 1.5): chỉ hỗ trợ Thanh toán khi nhận hàng (COD) *@
-    <div class="alert alert-info">Phương thức: <b>@Model.TenPTTT</b> – vui lòng chuẩn bị <b>@WebHelper.Tien(Model.TongTien)</b> để thanh toán khi nhận hàng.</div>
+    @if (CongThanhToan.NhanDang(Model.TenPTTT) == null)
+    {
+        <div class="alert alert-info">Phương thức: <b>@Model.TenPTTT</b> – vui lòng chuẩn bị <b>@WebHelper.Tien(Model.TongTien)</b> để thanh toán khi nhận hàng.</div>
+    }
+    else if (Model.TrangThaiThanhToan == TrangThaiThanhToanDH.Da)
+    {
+        <div class="alert alert-ok">Phương thức: <b>@Model.TenPTTT</b> – <b>Đã thanh toán</b> @WebHelper.Tien(Model.TongTien) (mã giao dịch: @Model.MaGiaoDich).</div>
+    }
+    else
+    {
+        <div class="alert alert-warn">Phương thức: <b>@Model.TenPTTT</b> – đơn chưa được thanh toán.
+            <a class="btn btn-primary" asp-controller="Payment" asp-action="Start" asp-route-maDH="@Model.MaDH">Thanh toán ngay</a></div>
+    }
+    @if (EmailService.DaCauHinh)
+    {
+        <p class="muted small">Email xác nhận đơn hàng đã được gửi tới địa chỉ email trong tài khoản của bạn.</p>
+    }
 
     <table class="table">
         <thead><tr><th>Sản phẩm</th><th class="num">SL</th><th class="num">Đơn giá</th><th class="num">Thành tiền</th></tr></thead>

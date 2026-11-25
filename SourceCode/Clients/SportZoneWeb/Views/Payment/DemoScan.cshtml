@@ -1,0 +1,11 @@
+@model DemoPaymentScanVM
+@{
+    ViewData["Title"] = "Xác nhận thanh toán demo";
+}
+<section class="card success">
+    <div class="success-icon">✓</div>
+    <h1>Thanh toán demo thành công!</h1>
+    <p>Đơn hàng <b class="order-code">#DH@Model.MaDH</b> đã được đánh dấu thanh toán.</p>
+    <div class="alert alert-warn">Đây là giao dịch mô phỏng; không có tiền thật được chuyển.</div>
+    <p class="muted">Quay lại trình duyệt đặt hàng. Trang checkout sẽ tự nhận kết quả và hoàn tất đơn hàng.</p>
+</section>

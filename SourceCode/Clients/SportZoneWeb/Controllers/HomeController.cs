@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using SportZoneWeb.BLL;
 using SportZoneWeb.Models;
+using SportZoneWeb.Utils;
 
 namespace SportZoneWeb.Controllers
 {
@@ -29,6 +30,7 @@ namespace SportZoneWeb.Controllers
                 vm.MoiNhat = _sanPhamBLL.MoiNhat(8);
                 vm.BanChay = _sanPhamBLL.BanChay(4);
                 vm.KhuyenMai = _maGiamGiaBLL.DangHieuLuc();
+                vm.DaXem = _sanPhamBLL.TheoDanhSachMa(HttpContext.Session.DaXem().Take(4));
             }
             catch (Exception ex)
             {
@@ -39,6 +41,41 @@ namespace SportZoneWeb.Controllers
         }
 
         public IActionResult About() => View();
+
+        public IActionResult ReturnPolicy() => View();
+
+        public IActionResult Faq() => View();
+
+        [HttpGet]
+        public IActionResult Contact()
+        {
+            var vm = new LienHeVM();
+            int? maKH = User.MaKH();
+            if (maKH.HasValue)
+            {
+                var kh = new TaiKhoanBLL().GetById(maKH.Value);
+                vm.HoTen = kh?.HoTen;
+                vm.Email = kh?.Email;
+            }
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Contact(LienHeVM vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+            string e(string s) => System.Net.WebUtility.HtmlEncode(s ?? "");
+            string body = "<p><b>Từ:</b> " + e(vm.HoTen) + " &lt;" + e(vm.Email) + "&gt;</p><p>" + e(vm.NoiDung).Replace("\n", "<br/>") + "</p>";
+            string den = string.IsNullOrWhiteSpace(EmailService.ShopEmail) ? EmailService.From : EmailService.ShopEmail;
+            if (EmailService.GuiNen(den, "[Liên hệ SportZone] " + vm.TieuDe, body, vm.Email))
+            {
+                TempData["Success"] = "Cảm ơn bạn! Cửa hàng đã nhận được tin nhắn và sẽ phản hồi qua email sớm nhất.";
+                return RedirectToAction(nameof(Contact));
+            }
+            ModelState.AddModelError("", "Hiện chưa gửi được tin nhắn (hệ thống email chưa được cấu hình). Vui lòng liên hệ trực tiếp qua hotline hoặc email bên cạnh.");
+            return View(vm);
+        }
 
         [Route("/Home/Error")]
         public IActionResult Error()

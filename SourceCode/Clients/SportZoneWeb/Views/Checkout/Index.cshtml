@@ -21,6 +21,10 @@
 
 @* novalidate: để kiểm tra phía máy chủ (ModelState) hiển thị lỗi ngay dưới từng ô nhập *@
 <form asp-action="Confirm" method="post" class="cart-layout" novalidate>
+    @if (!User.MaKH().HasValue)
+    {
+        <div class="alert alert-warn">Bạn có thể tiếp tục với tư cách khách. Khi nhấn đặt hàng, vui lòng đăng nhập hoặc đăng ký để hoàn tất; thông tin giao hàng bạn đã nhập sẽ được giữ lại.</div>
+    }
     @if (Model.LaMuaNgay)
     {
         @* "Mua ngay": chỉ đặt sản phẩm này, giỏ hàng giữ nguyên *@
@@ -32,6 +36,23 @@
 
         <section class="card form-card">
             <h3>1. Thông tin giao hàng</h3>
+            @{ var soDiaChi = ViewBag.SoDiaChi as List<DiaChiVM> ?? new List<DiaChiVM>(); }
+            @if (soDiaChi.Count > 0)
+            {
+                <div class="field">
+                    <label for="chon-dia-chi">Chọn từ sổ địa chỉ</label>
+                    <select id="chon-dia-chi">
+                        <option value="">— Nhập địa chỉ khác —</option>
+                        @foreach (var dc in soDiaChi)
+                        {
+                            <option value="@dc.Id" data-ten="@dc.HoTenNhan" data-sdt="@dc.SDT" data-dc="@dc.DiaChi" selected="@dc.MacDinh">
+                                @dc.HoTenNhan · @dc.SDT · @dc.DiaChi@(dc.MacDinh ? " (mặc định)" : "")
+                            </option>
+                        }
+                    </select>
+                    <a class="small" asp-controller="Account" asp-action="Addresses">Quản lý sổ địa chỉ ›</a>
+                </div>
+            }
             <div class="field">
                 <label asp-for="HoTenNhan"></label>
                 <input asp-for="HoTenNhan" required maxlength="100" />
@@ -51,7 +72,11 @@
 
         <section class="card form-card @(loiPTTT ? "pay-err" : "")">
             <h3>2. Phương thức thanh toán</h3>
-            <p class="muted small">Chọn một phương thức thanh toán cho đơn hàng.</p>
+            <p class="muted small">Chọn một phương thức thanh toán cho đơn hàng. Với VNPay hoặc MoMo, bạn sẽ được chuyển tới cổng thanh toán để quét mã QR; đơn online chỉ được xác nhận sau khi cổng báo thanh toán thành công.</p>
+            @if (CongThanhToan.DemoMode)
+            {
+                <p class="alert alert-warn">Chế độ DEMO: quét QR sẽ giả lập thanh toán, không phát sinh giao dịch tiền thật.</p>
+            }
             <div class="pay-list">
                 @foreach (var pt in Model.PhuongThucs)
                 {
@@ -92,7 +117,7 @@
         <div class="sum-row"><span>Giảm giá</span><b class="text-ok" id="sum-discount">- @WebHelper.Tien(Model.TienGiam)</b></div>
         <div class="sum-row"><span>Phí vận chuyển</span><b>Miễn phí</b></div>
         <div class="sum-row total"><span>Tổng thanh toán</span><b id="sum-total">@WebHelper.Tien(Model.TongTien)</b></div>
-        <button type="submit" class="btn btn-primary btn-block btn-lg">Hoàn tất đặt hàng</button>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Đặt hàng / tiếp tục thanh toán</button>
         @if (Model.LaMuaNgay)
         {
             <a class="btn btn-link btn-block" asp-controller="Product" asp-action="Detail" asp-route-id="@Model.MuaNgayMaSP">← Quay lại sản phẩm</a>
@@ -102,6 +127,6 @@
         {
             <a class="btn btn-link btn-block" asp-controller="Cart" asp-action="Index">← Quay lại giỏ hàng</a>
         }
-        <p class="muted small">Đơn hàng sẽ ở trạng thái <b>Chờ xác nhận</b>. Cửa hàng sẽ kiểm tra và xác nhận đơn sớm nhất.</p>
+        <p class="muted small">Đơn COD sẽ chờ cửa hàng xác nhận. Đơn VNPay/MoMo chỉ được xử lý sau khi thanh toán thành công.</p>
     </aside>
 </form>

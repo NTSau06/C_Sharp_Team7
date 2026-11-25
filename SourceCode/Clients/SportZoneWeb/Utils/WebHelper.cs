@@ -33,7 +33,11 @@ namespace SportZoneWeb.Utils
             if (string.IsNullOrWhiteSpace(hinhAnh)) return null;
             // Chỉ lấy tên file (chặn đường dẫn kiểu ../ hoặc C:\...)
             string ten = Path.GetFileName(hinhAnh.Trim().Replace('\\', '/'));
-            return ten == "" ? null : ThuMucAnh + Uri.EscapeDataString(ten);
+            if (ten == "") return null;
+            // Tương thích ngược nếu CSDL cũ còn lưu tên ảnh mẫu .svg đã chuyển sang .jpg
+            if (ten.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                ten = Path.ChangeExtension(ten, ".jpg");
+            return ThuMucAnh + Uri.EscapeDataString(ten);
         }
 
         /// <summary>Đường dẫn ảnh sản phẩm, hoặc ảnh mặc định nếu chưa có ảnh</summary>

@@ -1,9 +1,7 @@
 THƯ MỤC ẢNH DÙNG CHUNG ADMIN <-> WEB
 ====================================
 - Ảnh sản phẩm nằm NGAY TẠI thư mục này (không vào thư mục con). Cột SanPham.HinhAnh chỉ lưu TÊN FILE.
-  + 20 sản phẩm mẫu: sp01-bong-da-ucv.svg ... sp20-bong-ban-dhs.svg (Web hiển thị SVG sắc nét).
-  + Mỗi file .svg có một bản .png cùng tên: phân hệ Admin (WinForms/GDI+ không đọc được SVG)
-    tự dùng bản .png này để xem trước ảnh.
+  + 20 sản phẩm mẫu: sp01-bong-da-ucv.jpg ... sp20-bong-ban-dhs.jpg (dùng chung cho Web và Admin).
   + Ảnh chọn trên Admin được chép vào đây với tên sp_xxxxxxxxxxxx.jpg/.png
     (Admin\SportZoneAdmin\App.config > ImageFolder = ..\..\..\..\Clients\SportZoneWeb\wwwroot\images).
 - banners/       : nền banner khuyến mãi trang chủ (W1)

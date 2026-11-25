@@ -129,7 +129,11 @@ namespace SportZoneAdmin.GUI
         {
             DonHangDTO dh = UiHelper.Selected<DonHangDTO>(grid);
             bool cho = dh != null && TrangThaiDonHang.LaChoXuLy(dh.TrangThai);
-            btnXacNhan.Enabled = cho;
+            bool chuaThanhToanOnline = cho &&
+                ((dh.TenPTTT ?? "").IndexOf("VNPay", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 (dh.TenPTTT ?? "").IndexOf("MoMo", StringComparison.OrdinalIgnoreCase) >= 0) &&
+                dh.TrangThaiThanhToan != "Đã thanh toán";
+            btnXacNhan.Enabled = cho && !chuaThanhToanOnline;
             btnHuy.Enabled = cho;
             btnGiaoHang.Enabled = dh != null && DonHangBLL.TrangThaiTiepTheo(dh.TrangThai).Length > 0;
         }
@@ -217,7 +221,7 @@ namespace SportZoneAdmin.GUI
             AddInfo(info, 1, 0, "Khách hàng:", dh.TenKH);
             AddInfo(info, 1, 2, "Số điện thoại:", dh.SDT);
             AddInfo(info, 2, 0, "Email:", dh.Email);
-            AddInfo(info, 2, 2, "Thanh toán:", dh.TenPTTT);
+            AddInfo(info, 2, 2, "Thanh toán:", dh.TenPTTT + " · " + dh.TrangThaiThanhToan);
             AddInfo(info, 3, 0, "Địa chỉ giao:", dh.DiaChiGiao);
             Label lblTT = AddInfo(info, 3, 2, "Trạng thái:", dh.TrangThai);
             lblTT.ForeColor = UiHelper.StatusColor(dh.TrangThai);

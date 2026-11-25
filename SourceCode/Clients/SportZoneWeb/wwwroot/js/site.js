@@ -318,3 +318,19 @@
         });
     });
 })();
+
+
+// ---------------------------------------------------------------- Đặt hàng: chọn địa chỉ từ sổ địa chỉ
+(function () {
+    var sel = document.getElementById('chon-dia-chi');
+    if (!sel) return;
+    sel.addEventListener('change', function () {
+        var o = sel.options[sel.selectedIndex];
+        if (!o || !o.value) return;
+        var map = { HoTenNhan: o.dataset.ten, SDT: o.dataset.sdt, DiaChiGiao: o.dataset.dc };
+        Object.keys(map).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.value = map[id] || '';
+        });
+    });
+})();

@@ -18,6 +18,7 @@ namespace SportZoneAdmin.DTO
             ChoXacNhan, DaXacNhan, DangGiao, DaGiao, GiaoThatBai, DaHuy
         };
 
+        /// <summary>Đơn đang chờ quản trị viên xác nhận / hủy</summary>
         public static bool LaChoXuLy(string tt)
         {
             return tt == ChoXacNhan;

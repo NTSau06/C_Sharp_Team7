@@ -38,7 +38,7 @@ namespace SportZoneAdmin.GUI
         private string subtitle2 = "";
 
         private static readonly string[] TenKieu = { "Theo ngày", "Theo tuần", "Theo tháng", "Theo quý", "Theo năm" };
-        private static readonly string[] TenTieuChi = { "Theo sản phẩm", "Theo danh mục", "Theo khách hàng", "Theo phương thức thanh toán" };
+        private static readonly string[] TenTieuChi = { "Theo sản phẩm", "Theo danh mục", "Theo mã giảm giá", "Theo khách hàng", "Theo phương thức thanh toán" };
 
         public frmThongKe()
         {
@@ -61,10 +61,10 @@ namespace SportZoneAdmin.GUI
             btnExcel1.Click += (s, e) => Export(grid1, "Báo cáo doanh thu theo thời gian", subtitle1, "excel");
             btnPdf1.Click += (s, e) => Export(grid1, "Báo cáo doanh thu theo thời gian", subtitle1, "pdf");
 
-            var cards = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 92, Padding = new Padding(6, 6, 6, 0), BackColor = Color.White };
-            lblTong = AddCard(cards, "Tổng doanh thu (thực thu)", UiHelper.Primary);
-            lblSoDon = AddCard(cards, "Số đơn hoàn tất", UiHelper.Blue);
-            lblGiam = AddCard(cards, "Tổng tiền giảm giá", UiHelper.Orange);
+            var cards = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 118, Padding = new Padding(8, 12, 8, 6), BackColor = Color.White };
+            lblTong = AddCard(cards, "Tổng doanh thu (thực thu)", Glyph.Money, UiHelper.Success);
+            lblSoDon = AddCard(cards, "Số đơn hoàn tất", Glyph.Cart, UiHelper.Blue);
+            lblGiam = AddCard(cards, "Tổng tiền giảm giá", Glyph.Tag, UiHelper.Orange);
 
             chart = new Chart { Dock = DockStyle.Fill, BackColor = Color.White };
             var area = new ChartArea("main");
@@ -81,7 +81,7 @@ namespace SportZoneAdmin.GUI
                 ToolTip = "#VALX: #VALY{#,##0} đ"
             };
             chart.Series.Add(series);
-            chart.Titles.Add(new Title("Biểu đồ doanh thu", Docking.Top, new Font("Segoe UI", 11F, FontStyle.Bold), Color.FromArgb(33, 37, 41)));
+            chart.Titles.Add(new Title("Biểu đồ doanh thu", Docking.Top, new Font("Segoe UI", 11F, FontStyle.Bold), UiHelper.PrimaryDark));
 
             grid1 = UiHelper.MakeGrid();
             var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = System.Windows.Forms.Orientation.Horizontal, SplitterWidth = 6 };
@@ -125,6 +125,7 @@ namespace SportZoneAdmin.GUI
             tabs.TabPages.Add(tab1);
             tabs.TabPages.Add(tab2);
             tabs.SelectedIndexChanged += (s, e) => { if (tabs.SelectedTab == tab2 && grid2.DataSource == null) XemBaoCao(); };
+            UiHelper.StyleTabs(tabs);
             Controls.Add(tabs);
         }
 
@@ -134,14 +135,12 @@ namespace SportZoneAdmin.GUI
             XemDoanhThu();
         }
 
-        private static Label AddCard(FlowLayoutPanel parent, string title, Color color)
+        private static Label AddCard(FlowLayoutPanel parent, string title, string glyph, Color color)
         {
-            var p = new Panel { Width = 270, Height = 78, BackColor = color, Margin = new Padding(0, 0, 12, 0) };
-            var value = new Label { Dock = DockStyle.Fill, ForeColor = Color.White, Font = UiHelper.BigNumberFont, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(12, 0, 0, 0), Text = "0" };
-            var caption = new Label { Dock = DockStyle.Top, Height = 26, ForeColor = Color.White, Text = title, TextAlign = ContentAlignment.BottomLeft, Padding = new Padding(12, 0, 0, 0) };
-            p.Controls.Add(value);
-            p.Controls.Add(caption);
-            parent.Controls.Add(p);
+            Label value;
+            CardPanel card = UiHelper.MakeStatCard(title, glyph, color, out value);
+            card.Size = new Size(290, 96);
+            parent.Controls.Add(card);
             return value;
         }
 
@@ -186,6 +185,7 @@ namespace SportZoneAdmin.GUI
             {
                 case TieuChiBaoCao.SanPham: tenNhom = "Sản phẩm"; break;
                 case TieuChiBaoCao.DanhMuc: tenNhom = "Danh mục"; break;
+                case TieuChiBaoCao.MaGiamGia: tenNhom = "Mã giảm giá"; break;
                 case TieuChiBaoCao.KhachHang: tenNhom = "Khách hàng"; break;
                 default: tenNhom = "Phương thức thanh toán"; break;
             }

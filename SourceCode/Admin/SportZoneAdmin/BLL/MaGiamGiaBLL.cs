@@ -21,20 +21,20 @@ namespace SportZoneAdmin.BLL
         {
             m.Code = (m.Code ?? "").Trim().ToUpperInvariant();
             if (!Regex.IsMatch(m.Code, @"^[A-Z0-9_-]{3,30}$"))
-                throw new BusinessException("Code 3-30 ký tự, chỉ gồm chữ in hoa không dấu, số, '-' hoặc '_'.");
-            if (m.PhanTramGiam < 1 || m.PhanTramGiam > 100) throw new BusinessException("Phần trăm giảm phải từ 1 đến 100.");
-            if (m.SoTienGiamToiDa <= 0) throw new BusinessException("Số tiền giảm tối đa phải lớn hơn 0.");
-            if (m.DonToiThieu < 0) throw new BusinessException("Giá trị đơn tối thiểu không được âm.");
-            if (m.NgayKetThuc < m.NgayBatDau) throw new BusinessException("Ngày kết thúc phải sau ngày bắt đầu.");
-            if (m.SoLuotToiDa < 1) throw new BusinessException("Số lượt sử dụng tối đa phải lớn hơn 0.");
-            if (dal.ExistsCode(m.Code, m.MaMGG)) throw new BusinessException("Mã code \"" + m.Code + "\" đã tồn tại.");
+                throw new BusinessException("Code 3-30 ký tự, chỉ gồm chữ in hoa không dấu, số, '-' hoặc '_'.", "Code");
+            if (m.PhanTramGiam < 1 || m.PhanTramGiam > 100) throw new BusinessException("Phần trăm giảm phải từ 1 đến 100.", "PhanTramGiam");
+            if (m.SoTienGiamToiDa <= 0) throw new BusinessException("Số tiền giảm tối đa phải lớn hơn 0.", "SoTienGiamToiDa");
+            if (m.DonToiThieu < 0) throw new BusinessException("Giá trị đơn tối thiểu không được âm.", "DonToiThieu");
+            if (m.NgayKetThuc < m.NgayBatDau) throw new BusinessException("Ngày kết thúc phải sau ngày bắt đầu.", "NgayKetThuc");
+            if (m.SoLuotToiDa < 1) throw new BusinessException("Số lượt sử dụng tối đa phải lớn hơn 0.", "SoLuotToiDa");
+            if (dal.ExistsCode(m.Code, m.MaMGG)) throw new BusinessException("Mã code \"" + m.Code + "\" đã tồn tại.", "Code");
 
             if (m.MaMGG == 0) return dal.Insert(m);
 
             MaGiamGiaDTO cu = dal.GetById(m.MaMGG);
             if (cu == null) throw new BusinessException("Mã giảm giá không còn tồn tại.");
             if (m.SoLuotToiDa < cu.SoLuotDaDung)
-                throw new BusinessException("Số lượt tối đa không được nhỏ hơn số lượt đã dùng (" + cu.SoLuotDaDung + ").");
+                throw new BusinessException("Số lượt tối đa không được nhỏ hơn số lượt đã dùng (" + cu.SoLuotDaDung + ").", "SoLuotToiDa");
             dal.Update(m);
             return m.MaMGG;
         }

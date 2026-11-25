@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Câu hỏi thường gặp";
+    var cauHoi = new (string Hoi, string Dap)[]
+    {
+        ("Làm sao để đặt hàng?", "Thêm sản phẩm vào giỏ (hoặc bấm \"Mua ngay\"), đăng nhập, điền thông tin giao hàng, chọn phương thức thanh toán rồi xác nhận."),
+        ("Có những phương thức thanh toán nào?", "Thanh toán khi nhận hàng (COD), thanh toán online qua VNPay hoặc ví MoMo."),
+        ("Thanh toán online không thành công thì sao?", "Đơn vẫn được giữ. Bạn vào \"Đơn hàng của tôi\" > chi tiết đơn và bấm \"Thanh toán lại\"."),
+        ("Khi nào tôi nhận được email xác nhận?", "Ngay sau khi đặt hàng, gửi tới email đăng ký trong tài khoản. Nếu không thấy, hãy kiểm tra thư mục Spam."),
+        ("Làm sao theo dõi đơn hàng?", "Vào \"Đơn hàng của tôi\" để xem trạng thái. Mỗi khi đơn đổi trạng thái bạn sẽ nhận thông báo ở biểu tượng 🔔."),
+        ("Tôi có thể hủy đơn không?", "Được, khi đơn còn ở trạng thái \"Chờ xác nhận\". Sau khi cửa hàng xác nhận, vui lòng liên hệ cửa hàng."),
+        ("Đổi trả sản phẩm như thế nào?", "Xem chi tiết tại trang Chính sách đổi trả."),
+        ("Tài khoản của tôi bị khóa?", "Tài khoản có thể bị vô hiệu hóa bởi cửa hàng. Vui lòng liên hệ cửa hàng để được hỗ trợ.")
+    };
+}
+<nav class="breadcrumb"><a asp-action="Index">Trang chủ</a> › <span>Câu hỏi thường gặp</span></nav>
+<div class="card prose">
+    <h1>Câu hỏi thường gặp</h1>
+    @foreach (var q in cauHoi)
+    {
+        <details class="faq">
+            <summary>@q.Hoi</summary>
+            <p>@q.Dap</p>
+        </details>
+    }
+    <p class="muted">Không tìm thấy câu trả lời? <a asp-action="Contact">Liên hệ với chúng tôi</a>.</p>
+</div>
