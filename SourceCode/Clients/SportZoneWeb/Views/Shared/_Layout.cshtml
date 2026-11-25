@@ -70,6 +70,7 @@
                         <button class="nav-link" type="button" data-toggle="dropdown" aria-haspopup="true">👤 @User.HoTen() ▾</button>
                         <div class="dropdown-menu" role="menu">
                             <div class="dd-head">Xin chào, <b>@User.HoTen()</b></div>
+                            <a asp-controller="Account" asp-action="Profile" role="menuitem">⚙ Quản lý tài khoản</a>
                             <a asp-controller="Account" asp-action="Orders" role="menuitem">📄 Đơn hàng của tôi</a>
                             <a asp-controller="Cart" asp-action="Index" role="menuitem">🛒 Giỏ hàng</a>
                             <hr />
@@ -117,6 +118,7 @@
             <h4>Tài khoản</h4>
             @if (maKH.HasValue)
             {
+                <a asp-controller="Account" asp-action="Profile">⚙ Quản lý tài khoản</a>
                 <a asp-controller="Account" asp-action="Orders">📄 Đơn hàng của tôi</a>
                 <a asp-controller="Cart" asp-action="Index">🛒 Giỏ hàng (@soLuongGio)</a>
                 <form asp-controller="Account" asp-action="Logout" method="post"><button type="submit">↩ Đăng xuất (@User.HoTen())</button></form>
@@ -153,6 +155,7 @@
                 <h4>Mua sắm</h4>
                 <a asp-controller="Category" asp-action="Index">Danh mục sản phẩm</a>
                 <a asp-controller="Cart" asp-action="Index">Giỏ hàng</a>
+                <a asp-controller="Account" asp-action="Profile">Quản lý tài khoản</a>
                 <a asp-controller="Account" asp-action="Orders">Đơn hàng của tôi</a>
             </div>
             <div>

@@ -1,0 +1,110 @@
+@model AccountManageVM
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+    string vietTat = WebHelper.VietTat(Model.ThongTin.HoTen ?? Model.ThongTin.TenDangNhap);
+}
+<nav class="breadcrumb"><a asp-controller="Home" asp-action="Index">Trang chủ</a> › <span>Quản lý tài khoản</span></nav>
+<div class="page-head">
+    <h1>Quản lý tài khoản</h1>
+    <p class="muted small">Cập nhật thông tin cá nhân, địa chỉ giao hàng mặc định và mật khẩu đăng nhập.</p>
+</div>
+
+<div class="account-layout">
+    <aside class="card account-side">
+        <div class="account-user">
+            <div class="account-avatar">@vietTat</div>
+            <div class="account-meta">
+                <b>@Model.ThongTin.HoTen</b>
+                <span class="muted small">@@@Model.ThongTin.TenDangNhap</span>
+            </div>
+        </div>
+        <nav class="account-menu" aria-label="Menu tài khoản">
+            <a asp-action="Profile" class="active">⚙ Thông tin tài khoản</a>
+            <a asp-action="Orders">📄 Đơn hàng của tôi <span class="cnt">@Model.TongDonHang</span></a>
+            <a asp-controller="Cart" asp-action="Index">🛒 Giỏ hàng</a>
+            <form asp-action="Logout" method="post">
+                <button type="submit" class="btn-logout">↩ Đăng xuất</button>
+            </form>
+        </nav>
+    </aside>
+
+    <div>
+        <section class="card form-card">
+            <h3>1. Thông tin cá nhân & địa chỉ mặc định</h3>
+            <p class="muted small">Họ tên, số điện thoại và địa chỉ bên dưới sẽ được điền sẵn khi bạn đặt hàng.</p>
+            <form asp-action="Profile" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-warn"></div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label asp-for="ThongTin.TenDangNhap"></label>
+                        <input asp-for="ThongTin.TenDangNhap" readonly class="input-readonly" />
+                    </div>
+                    <div class="field">
+                        <label asp-for="ThongTin.HoTen"></label>
+                        <input asp-for="ThongTin.HoTen" required maxlength="100" />
+                        <span asp-validation-for="ThongTin.HoTen" class="field-err"></span>
+                    </div>
+                    <div class="field">
+                        <label asp-for="ThongTin.Email"></label>
+                        <input asp-for="ThongTin.Email" type="email" required maxlength="100" />
+                        <span asp-validation-for="ThongTin.Email" class="field-err"></span>
+                    </div>
+                    <div class="field">
+                        <label asp-for="ThongTin.SDT"></label>
+                        <input asp-for="ThongTin.SDT" type="tel" required maxlength="11" placeholder="VD: 0901234567" />
+                        <span asp-validation-for="ThongTin.SDT" class="field-err"></span>
+                    </div>
+                    <div class="field span-2">
+                        <label asp-for="ThongTin.DiaChi"></label>
+                        <textarea asp-for="ThongTin.DiaChi" rows="2" maxlength="255" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                        <span asp-validation-for="ThongTin.DiaChi" class="field-err"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            </form>
+        </section>
+
+        <section class="card form-card">
+            <h3>2. Đổi mật khẩu</h3>
+            <form asp-action="ChangePassword" method="post" novalidate>
+                <div class="form-grid">
+                    <div class="field span-2">
+                        <label asp-for="MatKhau.MatKhauCu"></label>
+                        <input asp-for="MatKhau.MatKhauCu" autocomplete="current-password" />
+                        <span asp-validation-for="MatKhau.MatKhauCu" class="field-err"></span>
+                    </div>
+                    <div class="field">
+                        <label asp-for="MatKhau.MatKhauMoi"></label>
+                        <input asp-for="MatKhau.MatKhauMoi" autocomplete="new-password" />
+                        <span asp-validation-for="MatKhau.MatKhauMoi" class="field-err"></span>
+                    </div>
+                    <div class="field">
+                        <label asp-for="MatKhau.XacNhanMatKhau"></label>
+                        <input asp-for="MatKhau.XacNhanMatKhau" autocomplete="new-password" />
+                        <span asp-validation-for="MatKhau.XacNhanMatKhau" class="field-err"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline">Đổi mật khẩu</button>
+            </form>
+        </section>
+
+        @if (Model.DiaChiDaDung.Count > 0)
+        {
+            <section class="card form-card">
+                <h3>3. Địa chỉ & số điện thoại giao hàng đã dùng gần đây</h3>
+                <p class="muted small">Các thông tin giao hàng khác bạn từng sử dụng sẽ hiện sẵn để chọn nhanh khi thanh toán.</p>
+                <div class="saved-addr-list">
+                    @foreach (var dc in Model.DiaChiDaDung)
+                    {
+                        <div class="saved-addr">
+                            <div>
+                                <b>@dc.HoTen</b> · <span>@dc.SDT</span>
+                                <div class="muted small">@dc.DiaChi</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+</div>

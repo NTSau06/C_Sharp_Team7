@@ -3,6 +3,11 @@
     ViewData["Title"] = "Đặt hàng";
     // TC23: có lỗi "Vui lòng chọn một phương thức thanh toán" => tô đỏ khung phương thức
     bool loiPTTT = ViewData.ModelState["MaPTTT"]?.Errors.Count > 0;
+    bool loiGiaoHang = ViewData.ModelState["HoTenNhan"]?.Errors.Count > 0
+        || ViewData.ModelState["SDT"]?.Errors.Count > 0
+        || ViewData.ModelState["DiaChiGiao"]?.Errors.Count > 0;
+    string chon = string.IsNullOrWhiteSpace(Model.ChonDiaChi) ? "account" : Model.ChonDiaChi;
+    bool hienFormNhap = chon == "other" || loiGiaoHang || (chon == "account" && !Model.TaiKhoanMacDinh.CoDiaChi);
 }
 <nav class="breadcrumb">
     <a asp-controller="Home" asp-action="Index">Trang chủ</a> ›
@@ -30,22 +35,88 @@
     <div>
         <div asp-validation-summary="ModelOnly" class="alert alert-warn"></div>
 
-        <section class="card form-card">
-            <h3>1. Thông tin giao hàng</h3>
-            <div class="field">
-                <label asp-for="HoTenNhan"></label>
-                <input asp-for="HoTenNhan" required maxlength="100" />
-                <span asp-validation-for="HoTenNhan" class="field-err"></span>
+        <section class="card form-card" id="ship-section">
+            <div class="section-head">
+                <h3>1. Thông tin giao hàng</h3>
+                <a class="small" asp-controller="Account" asp-action="Profile">Quản lý tài khoản ›</a>
             </div>
-            <div class="field">
-                <label asp-for="SDT"></label>
-                <input asp-for="SDT" type="tel" required maxlength="11" placeholder="VD: 0901234567" />
-                <span asp-validation-for="SDT" class="field-err"></span>
+            <p class="muted small">Chọn thông tin đã đăng ký trong tài khoản hoặc nhập địa chỉ và số điện thoại nhận hàng khác.</p>
+
+            <div class="ship-list" role="radiogroup" aria-label="Chọn địa chỉ giao hàng">
+                <label class="ship-opt">
+                    <input type="radio" name="ChonDiaChi" value="account" checked="@(chon == "account")"
+                           data-name="@Model.TaiKhoanMacDinh.HoTen"
+                           data-phone="@Model.TaiKhoanMacDinh.SDT"
+                           data-addr="@Model.TaiKhoanMacDinh.DiaChi"
+                           data-has-addr="@(Model.TaiKhoanMacDinh.CoDiaChi ? "1" : "0")" />
+                    <div class="ship-body">
+                        <div class="ship-title">
+                            <b>Dùng thông tin tài khoản</b>
+                            <span class="status st-info">Mặc định</span>
+                        </div>
+                        <div class="ship-meta">
+                            <b>@Model.TaiKhoanMacDinh.HoTen</b> · <span>@Model.TaiKhoanMacDinh.SDT</span>
+                        </div>
+                        @if (Model.TaiKhoanMacDinh.CoDiaChi)
+                        {
+                            <div class="muted small">@Model.TaiKhoanMacDinh.DiaChi</div>
+                        }
+                        else
+                        {
+                            <div class="text-bad small">Tài khoản chưa lưu địa chỉ mặc định — hãy nhập địa chỉ nhận hàng bên dưới.</div>
+                        }
+                    </div>
+                </label>
+
+                @for (int idx = 0; idx < Model.DiaChiDaDung.Count; idx++)
+                {
+                    var dc = Model.DiaChiDaDung[idx];
+                    string val = "saved-" + idx;
+                    <label class="ship-opt">
+                        <input type="radio" name="ChonDiaChi" value="@val" checked="@(chon == val)"
+                               data-name="@dc.HoTen"
+                               data-phone="@dc.SDT"
+                               data-addr="@dc.DiaChi"
+                               data-has-addr="1" />
+                        <div class="ship-body">
+                            <div class="ship-title">
+                                <b>@dc.HoTen</b> · <span>@dc.SDT</span>
+                                <span class="muted small">(Đã dùng trước đó)</span>
+                            </div>
+                            <div class="muted small">@dc.DiaChi</div>
+                        </div>
+                    </label>
+                }
+
+                <label class="ship-opt">
+                    <input type="radio" name="ChonDiaChi" value="other" checked="@(chon == "other")" />
+                    <div class="ship-body">
+                        <div class="ship-title"><b>+ Thêm địa chỉ và số điện thoại khác</b></div>
+                        <div class="muted small">Giao cho người thân, cơ quan hoặc nhập số điện thoại liên hệ khác.</div>
+                    </div>
+                </label>
             </div>
-            <div class="field">
-                <label asp-for="DiaChiGiao"></label>
-                <textarea asp-for="DiaChiGiao" rows="2" required maxlength="200" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
-                <span asp-validation-for="DiaChiGiao" class="field-err"></span>
+
+            <div class="ship-fields" id="ship-fields" hidden="@(!hienFormNhap)">
+                <div class="field">
+                    <label asp-for="HoTenNhan"></label>
+                    <input asp-for="HoTenNhan" required maxlength="100" placeholder="VD: Nguyễn Văn B" />
+                    <span asp-validation-for="HoTenNhan" class="field-err"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="SDT"></label>
+                    <input asp-for="SDT" type="tel" required maxlength="11" placeholder="VD: 0901234567" />
+                    <span asp-validation-for="SDT" class="field-err"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="DiaChiGiao"></label>
+                    <textarea asp-for="DiaChiGiao" rows="2" required maxlength="200" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                    <span asp-validation-for="DiaChiGiao" class="field-err"></span>
+                </div>
+                <label class="check">
+                    <input asp-for="LuuDiaChiMacDinh" type="checkbox" />
+                    <span>Lưu địa chỉ này làm địa chỉ mặc định cho tài khoản</span>
+                </label>
             </div>
         </section>
 

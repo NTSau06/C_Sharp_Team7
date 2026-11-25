@@ -302,6 +302,64 @@
         });
     }
 
+    // ------------------------------------------------------------ chọn thông tin giao hàng khi thanh toán (tài khoản / địa chỉ khác)
+    var shipSection = $('#ship-section');
+    if (shipSection) {
+        var shipRadios = $all('input[name="ChonDiaChi"]', shipSection);
+        var shipFields = $('#ship-fields');
+        var inpName = $('#HoTenNhan'), inpPhone = $('#SDT'), inpAddr = $('#DiaChiGiao'), chkSave = $('#LuuDiaChiMacDinh');
+        var customDraft = {
+            name: (shipRadios.some(function (r) { return r.checked && r.value === 'other'; }) && inpName) ? inpName.value : '',
+            phone: (shipRadios.some(function (r) { return r.checked && r.value === 'other'; }) && inpPhone) ? inpPhone.value : '',
+            addr: (shipRadios.some(function (r) { return r.checked && r.value === 'other'; }) && inpAddr) ? inpAddr.value : ''
+        };
+        var currentChoice = (shipRadios.find(function (r) { return r.checked; }) || {}).value || 'account';
+
+        function clearShipErrors() {
+            $all('.field-err', shipFields).forEach(function (el) { el.textContent = ''; });
+            $all('.input-validation-error', shipFields).forEach(function (el) { el.classList.remove('input-validation-error'); });
+        }
+
+        function applyShipChoice(radio, fromUser) {
+            if (!radio || !shipFields) return;
+            if (fromUser && currentChoice === 'other') {
+                customDraft.name = inpName ? inpName.value : '';
+                customDraft.phone = inpPhone ? inpPhone.value : '';
+                customDraft.addr = inpAddr ? inpAddr.value : '';
+            }
+            currentChoice = radio.value;
+
+            if (radio.value === 'other') {
+                if (fromUser) {
+                    if (inpName) inpName.value = customDraft.name;
+                    if (inpPhone) inpPhone.value = customDraft.phone;
+                    if (inpAddr) inpAddr.value = customDraft.addr;
+                    if (chkSave) chkSave.checked = false;
+                    clearShipErrors();
+                }
+                shipFields.hidden = false;
+                if (fromUser && inpName) inpName.focus();
+            } else {
+                var hasAddr = radio.getAttribute('data-has-addr') === '1';
+                if (fromUser) {
+                    if (inpName) inpName.value = radio.getAttribute('data-name') || '';
+                    if (inpPhone) inpPhone.value = radio.getAttribute('data-phone') || '';
+                    if (inpAddr) inpAddr.value = radio.getAttribute('data-addr') || '';
+                    if (chkSave) chkSave.checked = !hasAddr;
+                    clearShipErrors();
+                }
+                shipFields.hidden = hasAddr && $all('.field-err', shipFields).every(function (el) { return !el.textContent.trim(); });
+                if (fromUser && !hasAddr && inpAddr) inpAddr.focus();
+            }
+        }
+
+        shipRadios.forEach(function (r) {
+            r.addEventListener('change', function () {
+                if (r.checked) applyShipChoice(r, true);
+            });
+        });
+    }
+
     // ------------------------------------------------------------ bộ lọc / sắp xếp
     $all('[data-autosubmit]').forEach(function (s) {
         s.addEventListener('change', function () { if (s.form) s.form.submit(); });

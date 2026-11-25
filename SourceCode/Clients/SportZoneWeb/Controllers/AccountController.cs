@@ -114,5 +114,89 @@ namespace SportZoneWeb.Controllers
         {
             return View(_donHangBLL.LichSu(User.MaKH().Value, trangThai));
         }
+
+        private AccountManageVM TaoManageVM(int maKH, ProfileVM thongTinOverride = null, ChangePasswordVM matKhauOverride = null)
+        {
+            KhachHangDTO kh = _taiKhoanBLL.GetById(maKH);
+            var vm = new AccountManageVM
+            {
+                ThongTin = thongTinOverride ?? new ProfileVM
+                {
+                    TenDangNhap = kh?.TenDangNhap,
+                    HoTen = kh?.HoTen,
+                    Email = kh?.Email,
+                    SDT = kh?.SDT,
+                    DiaChi = kh?.DiaChi
+                },
+                MatKhau = matKhauOverride ?? new ChangePasswordVM(),
+                TongDonHang = _donHangBLL.LichSu(maKH).Count,
+                DiaChiDaDung = _donHangBLL.DiaChiDaDung(maKH, kh)
+            };
+            if (thongTinOverride != null && kh != null) vm.ThongTin.TenDangNhap = kh.TenDangNhap;
+            return vm;
+        }
+
+        /// <summary>Quản lý tài khoản khách hàng: xem / sửa thông tin cá nhân, địa chỉ mặc định và đổi mật khẩu</summary>
+        [Authorize]
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            int maKH = User.MaKH().Value;
+            if (_taiKhoanBLL.GetById(maKH) == null) return RedirectToAction("Login");
+            return View(TaoManageVM(maKH));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile([Bind(Prefix = "ThongTin")] ProfileVM model)
+        {
+            int maKH = User.MaKH().Value;
+            if (!ModelState.IsValid)
+                return View(TaoManageVM(maKH, thongTinOverride: model));
+
+            try
+            {
+                KhachHangDTO updated = _taiKhoanBLL.CapNhatThongTin(maKH, new KhachHangDTO
+                {
+                    HoTen = model.HoTen,
+                    Email = model.Email,
+                    SDT = model.SDT,
+                    DiaChi = model.DiaChi
+                });
+                await DangNhapCookie(updated);
+                TempData["Success"] = "Đã cập nhật thông tin tài khoản.";
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (BusinessException ex)
+            {
+                string key = string.IsNullOrEmpty(ex.TenTruong) ? "" : "ThongTin." + ex.TenTruong;
+                ModelState.AddModelError(key, ex.Message);
+                return View(TaoManageVM(maKH, thongTinOverride: model));
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangePassword([Bind(Prefix = "MatKhau")] ChangePasswordVM model)
+        {
+            int maKH = User.MaKH().Value;
+            if (!ModelState.IsValid)
+                return View("Profile", TaoManageVM(maKH, matKhauOverride: model));
+
+            try
+            {
+                _taiKhoanBLL.DoiMatKhau(maKH, model.MatKhauCu, model.MatKhauMoi, model.XacNhanMatKhau);
+                TempData["Success"] = "Đổi mật khẩu thành công.";
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (BusinessException ex)
+            {
+                string key = string.IsNullOrEmpty(ex.TenTruong) ? "" : "MatKhau." + ex.TenTruong;
+                ModelState.AddModelError(key, ex.Message);
+                return View("Profile", TaoManageVM(maKH, matKhauOverride: model));
+            }
+        }
     }
 }

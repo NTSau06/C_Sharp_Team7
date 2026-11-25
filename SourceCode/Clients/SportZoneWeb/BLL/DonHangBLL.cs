@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using SportZoneWeb.DAL;
 using SportZoneWeb.DTO;
 using SportZoneWeb.Models;
@@ -122,6 +123,55 @@ namespace SportZoneWeb.BLL
                 TongSo = tatCa.Count,
                 DonHangs = tt == null ? tatCa : tatCa.Where(d => d.TrangThai == tt).ToList(),
                 SoLuongTheoTrangThai = tatCa.GroupBy(d => d.TrangThai).ToDictionary(g => g.Key, g => g.Count())
+            };
+        }
+
+        /// <summary>
+        /// Danh sách địa chỉ & SĐT giao hàng khác từng dùng ở các đơn trước (loại trùng với thông tin tài khoản mặc định)
+        /// </summary>
+        public List<DiaChiGiaoItem> DiaChiDaDung(int maKH, KhachHangDTO kh)
+        {
+            var result = new List<DiaChiGiaoItem>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (kh != null && !string.IsNullOrWhiteSpace(kh.DiaChi))
+                seen.Add(KhoaDiaChi(kh.HoTen, kh.SDT, kh.DiaChi));
+
+            foreach (string raw in donHangDAL.GetDiaChiDaDung(maKH, 8))
+            {
+                DiaChiGiaoItem item = TachDiaChi(raw, kh);
+                if (string.IsNullOrWhiteSpace(item.DiaChi)) continue;
+                string key = KhoaDiaChi(item.HoTen, item.SDT, item.DiaChi);
+                if (seen.Add(key))
+                {
+                    result.Add(item);
+                    if (result.Count >= 4) break;
+                }
+            }
+            return result;
+        }
+
+        private static string KhoaDiaChi(string hoTen, string sdt, string diaChi) =>
+            (hoTen ?? "").Trim() + "|" + (sdt ?? "").Trim() + "|" + (diaChi ?? "").Trim();
+
+        private static DiaChiGiaoItem TachDiaChi(string raw, KhachHangDTO kh)
+        {
+            raw = (raw ?? "").Trim();
+            string[] parts = raw.Split(new[] { " - " }, 3, StringSplitOptions.None);
+            if (parts.Length == 3 && Regex.IsMatch(parts[1].Trim(), @"^0\d{9,10}$"))
+            {
+                return new DiaChiGiaoItem
+                {
+                    HoTen = parts[0].Trim(),
+                    SDT = parts[1].Trim(),
+                    DiaChi = parts[2].Trim()
+                };
+            }
+            return new DiaChiGiaoItem
+            {
+                HoTen = (kh?.HoTen ?? "").Trim(),
+                SDT = (kh?.SDT ?? "").Trim(),
+                DiaChi = raw
             };
         }
     }

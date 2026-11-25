@@ -18,7 +18,7 @@ namespace SportZoneWeb.Controllers
         private readonly TaiKhoanBLL _taiKhoanBLL = new TaiKhoanBLL();
         private readonly SanPhamBLL _sanPhamBLL = new SanPhamBLL();
 
-        /// <summary>Nạp giỏ hàng, phương thức thanh toán và tính tiền giảm cho form</summary>
+        /// <summary>Nạp giỏ hàng, thông tin địa chỉ tài khoản/đã dùng, phương thức thanh toán và tính tiền giảm cho form</summary>
         private void NapDuLieu(int maKH, CheckoutVM vm)
         {
             vm.Items = vm.LaMuaNgay
@@ -35,18 +35,23 @@ namespace SportZoneWeb.Controllers
                 vm.ThongBaoMa = kq.ThongBao;
                 if (kq.HopLe) vm.TienGiam = kq.TienGiam;
             }
+
+            KhachHangDTO kh = _taiKhoanBLL.GetById(maKH);
+            vm.TaiKhoanMacDinh = kh == null
+                ? new DiaChiGiaoItem()
+                : new DiaChiGiaoItem { HoTen = kh.HoTen, SDT = kh.SDT, DiaChi = kh.DiaChi };
+            vm.DiaChiDaDung = _donHangBLL.DiaChiDaDung(maKH, kh);
+            if (string.IsNullOrWhiteSpace(vm.ChonDiaChi)) vm.ChonDiaChi = "account";
         }
 
-        /// <summary>Điền sẵn thông tin giao hàng từ tài khoản; không chọn sẵn phương thức thanh toán (TC23)</summary>
+        /// <summary>Điền sẵn thông tin giao hàng từ tài khoản đã đăng ký; không chọn sẵn phương thức thanh toán (TC23)</summary>
         private void DienThongTinGiaoHang(int maKH, CheckoutVM vm)
         {
-            KhachHangDTO kh = _taiKhoanBLL.GetById(maKH);
-            if (kh != null)
-            {
-                vm.HoTenNhan = kh.HoTen;
-                vm.SDT = kh.SDT;
-                vm.DiaChiGiao = kh.DiaChi;
-            }
+            vm.ChonDiaChi = "account";
+            vm.HoTenNhan = vm.TaiKhoanMacDinh.HoTen;
+            vm.SDT = vm.TaiKhoanMacDinh.SDT;
+            vm.DiaChiGiao = vm.TaiKhoanMacDinh.DiaChi;
+            vm.LuuDiaChiMacDinh = !vm.TaiKhoanMacDinh.CoDiaChi;
             vm.MaPTTT = null;
         }
 
@@ -117,6 +122,8 @@ namespace SportZoneWeb.Controllers
                 try
                 {
                     int maDH = _donHangBLL.DatHang(maKH, vm);
+                    if (vm.LuuDiaChiMacDinh && !string.IsNullOrWhiteSpace(vm.DiaChiGiao))
+                        _taiKhoanBLL.CapNhatDiaChiMacDinh(maKH, vm.DiaChiGiao);
                     HttpContext.Session.Remove(CartController.SessionMaGiamGia);
                     return RedirectToAction(nameof(Success), new { maDH });
                 }

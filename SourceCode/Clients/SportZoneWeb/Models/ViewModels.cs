@@ -93,9 +93,24 @@ namespace SportZoneWeb.Models
         public List<MaGiamGiaDTO> MaGoiY { get; set; } = new List<MaGiamGiaDTO>();
     }
 
+    /// <summary>Một địa chỉ + số điện thoại giao hàng (từ tài khoản hoặc đơn hàng trước đó)</summary>
+    public class DiaChiGiaoItem
+    {
+        public string HoTen { get; set; }
+        public string SDT { get; set; }
+        public string DiaChi { get; set; }
+        public bool CoDiaChi => !string.IsNullOrWhiteSpace(DiaChi);
+    }
+
     /// <summary>Form đặt hàng + thanh toán</summary>
     public class CheckoutVM
     {
+        /// <summary>"account" = thông tin tài khoản, "saved-0/1/..." = địa chỉ từng dùng, "other" = nhập địa chỉ & SĐT khác</summary>
+        public string ChonDiaChi { get; set; } = "account";
+
+        /// <summary>Tùy chọn lưu địa chỉ vừa nhập làm địa chỉ mặc định trong tài khoản</summary>
+        public bool LuuDiaChiMacDinh { get; set; }
+
         [Required(ErrorMessage = "Vui lòng nhập họ tên người nhận")]
         [StringLength(100, ErrorMessage = "Họ tên tối đa 100 ký tự")]
         [Display(Name = "Họ tên người nhận")]
@@ -123,6 +138,8 @@ namespace SportZoneWeb.Models
         public bool LaMuaNgay => MuaNgayMaSP.HasValue;
 
         // ----- dữ liệu hiển thị
+        public DiaChiGiaoItem TaiKhoanMacDinh { get; set; } = new DiaChiGiaoItem();
+        public List<DiaChiGiaoItem> DiaChiDaDung { get; set; } = new List<DiaChiGiaoItem>();
         public List<GioHangItemVM> Items { get; set; } = new List<GioHangItemVM>();
         public List<PhuongThucThanhToanDTO> PhuongThucs { get; set; } = new List<PhuongThucThanhToanDTO>();
         public decimal TamTinh { get; set; }
@@ -183,6 +200,60 @@ namespace SportZoneWeb.Models
         [DataType(DataType.Password)]
         [Display(Name = "Nhập lại mật khẩu")]
         public string XacNhanMatKhau { get; set; }
+    }
+
+    public class ProfileVM
+    {
+        [Display(Name = "Tên đăng nhập")]
+        public string TenDangNhap { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập họ tên")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Họ tên từ 2 đến 100 ký tự")]
+        [Display(Name = "Họ tên")]
+        public string HoTen { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập email")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Email không đúng định dạng (ví dụ: ten@gmail.com)")]
+        [StringLength(100, ErrorMessage = "Email tối đa 100 ký tự")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
+        [RegularExpression(@"^0\d{9,10}$", ErrorMessage = "Số điện thoại gồm 10-11 chữ số, bắt đầu bằng 0")]
+        [Display(Name = "Số điện thoại")]
+        public string SDT { get; set; }
+
+        [StringLength(255, ErrorMessage = "Địa chỉ tối đa 255 ký tự")]
+        [Display(Name = "Địa chỉ mặc định")]
+        public string DiaChi { get; set; }
+    }
+
+    public class ChangePasswordVM
+    {
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu hiện tại")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu hiện tại")]
+        public string MatKhauCu { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu mới")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu mới tối thiểu 6 ký tự")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu mới")]
+        public string MatKhauMoi { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập lại mật khẩu mới")]
+        [Compare("MatKhauMoi", ErrorMessage = "Mật khẩu nhập lại không khớp")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Nhập lại mật khẩu mới")]
+        public string XacNhanMatKhau { get; set; }
+    }
+
+    public class AccountManageVM
+    {
+        public ProfileVM ThongTin { get; set; } = new ProfileVM();
+        public ChangePasswordVM MatKhau { get; set; } = new ChangePasswordVM();
+        public int TongDonHang { get; set; }
+        public List<DiaChiGiaoItem> DiaChiDaDung { get; set; } = new List<DiaChiGiaoItem>();
     }
 
     /// <summary>FR18 - Lịch sử đơn hàng, lọc nhanh theo trạng thái</summary>

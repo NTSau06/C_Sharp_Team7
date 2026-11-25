@@ -58,5 +58,63 @@ namespace SportZoneWeb.BLL
             if (taiKhoanDAL.ExistsSDT(kh.SDT))
                 throw new BusinessException("Số điện thoại \"" + kh.SDT + "\" đã được sử dụng.", "SDT");
         }
+
+        /// <summary>Cập nhật thông tin cá nhân và địa chỉ mặc định của khách hàng đang đăng nhập</summary>
+        public KhachHangDTO CapNhatThongTin(int maKH, KhachHangDTO duLieu)
+        {
+            KhachHangDTO hienTai = taiKhoanDAL.GetKHById(maKH);
+            if (hienTai == null || !hienTai.TrangThai)
+                throw new BusinessException("Tài khoản không tồn tại hoặc đã bị vô hiệu hóa.");
+
+            duLieu.MaKH = maKH;
+            duLieu.TenDangNhap = hienTai.TenDangNhap;
+            duLieu.TrangThai = hienTai.TrangThai;
+            duLieu.HoTen = (duLieu.HoTen ?? "").Trim();
+            duLieu.Email = (duLieu.Email ?? "").Trim().ToLowerInvariant();
+            duLieu.SDT = (duLieu.SDT ?? "").Trim();
+            duLieu.DiaChi = string.IsNullOrWhiteSpace(duLieu.DiaChi) ? null : duLieu.DiaChi.Trim();
+
+            if (duLieu.HoTen.Length < 2 || duLieu.HoTen.Length > 100)
+                throw new BusinessException("Họ tên từ 2 đến 100 ký tự.", "HoTen");
+            if (!Regex.IsMatch(duLieu.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$") || duLieu.Email.Length > 100)
+                throw new BusinessException("Email không đúng định dạng (ví dụ: ten@gmail.com)", "Email");
+            if (!Regex.IsMatch(duLieu.SDT, @"^0\d{9,10}$"))
+                throw new BusinessException("Số điện thoại gồm 10-11 chữ số, bắt đầu bằng 0.", "SDT");
+            if (duLieu.DiaChi != null && duLieu.DiaChi.Length > 255)
+                throw new BusinessException("Địa chỉ tối đa 255 ký tự.", "DiaChi");
+
+            if (taiKhoanDAL.ExistsEmailExcept(duLieu.Email, maKH))
+                throw new BusinessException("Email \"" + duLieu.Email + "\" đã được sử dụng bởi tài khoản khác.", "Email");
+            if (taiKhoanDAL.ExistsSDTExcept(duLieu.SDT, maKH))
+                throw new BusinessException("Số điện thoại \"" + duLieu.SDT + "\" đã được sử dụng bởi tài khoản khác.", "SDT");
+
+            taiKhoanDAL.UpdateProfile(duLieu);
+            return duLieu;
+        }
+
+        /// <summary>Đổi mật khẩu tài khoản khách hàng</summary>
+        public void DoiMatKhau(int maKH, string matKhauCu, string matKhauMoi, string xacNhan)
+        {
+            KhachHangDTO hienTai = taiKhoanDAL.GetKHById(maKH);
+            if (hienTai == null || !hienTai.TrangThai)
+                throw new BusinessException("Tài khoản không tồn tại hoặc đã bị vô hiệu hóa.");
+            if (string.IsNullOrEmpty(matKhauCu) || !PasswordHasher.Verify(matKhauCu, hienTai.MatKhau))
+                throw new BusinessException("Mật khẩu hiện tại không đúng.", "MatKhauCu");
+            if (string.IsNullOrEmpty(matKhauMoi) || matKhauMoi.Length < 6 || matKhauMoi.Length > 100)
+                throw new BusinessException("Mật khẩu mới từ 6 đến 100 ký tự.", "MatKhauMoi");
+            if (matKhauMoi != xacNhan)
+                throw new BusinessException("Mật khẩu nhập lại không khớp.", "XacNhanMatKhau");
+
+            taiKhoanDAL.UpdatePassword(maKH, PasswordHasher.Hash(matKhauMoi));
+        }
+
+        /// <summary>Lưu địa chỉ giao hàng mới làm địa chỉ mặc định của tài khoản</summary>
+        public void CapNhatDiaChiMacDinh(int maKH, string diaChi)
+        {
+            diaChi = (diaChi ?? "").Trim();
+            if (diaChi.Length < 5) return;
+            if (diaChi.Length > 255) diaChi = diaChi.Substring(0, 255);
+            taiKhoanDAL.UpdateDiaChi(maKH, diaChi);
+        }
     }
 }

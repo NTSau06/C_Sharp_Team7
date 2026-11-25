@@ -85,5 +85,22 @@ namespace SportZoneWeb.DAL
                 });
             return list;
         }
+
+        /// <summary>Các địa chỉ giao hàng đã từng sử dụng của khách (mới nhất trước, không trùng)</summary>
+        public List<string> GetDiaChiDaDung(int maKH, int max = 5)
+        {
+            DataTable dt = DBConnect.ExecuteQuery(
+                "SELECT DiaChiGiao FROM DonHang " +
+                "WHERE MaKH = @kh AND DiaChiGiao IS NOT NULL AND LTRIM(RTRIM(DiaChiGiao)) <> '' " +
+                "GROUP BY DiaChiGiao ORDER BY MAX(NgayDat) DESC",
+                DBConnect.P("@kh", maKH));
+            var list = new List<string>();
+            foreach (DataRow r in dt.Rows)
+            {
+                list.Add(r.Str("DiaChiGiao"));
+                if (list.Count >= max) break;
+            }
+            return list;
+        }
     }
 }

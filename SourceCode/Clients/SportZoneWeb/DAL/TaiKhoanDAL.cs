@@ -46,9 +46,23 @@ namespace SportZoneWeb.DAL
             return Convert.ToInt32(DBConnect.ExecuteScalar("SELECT COUNT(*) FROM KhachHang WHERE Email = @e", DBConnect.P("@e", email))) > 0;
         }
 
+        public bool ExistsEmailExcept(string email, int maKH)
+        {
+            return Convert.ToInt32(DBConnect.ExecuteScalar(
+                "SELECT COUNT(*) FROM KhachHang WHERE Email = @e AND MaKH <> @id",
+                DBConnect.P("@e", email), DBConnect.P("@id", maKH))) > 0;
+        }
+
         public bool ExistsSDT(string sdt)
         {
             return Convert.ToInt32(DBConnect.ExecuteScalar("SELECT COUNT(*) FROM KhachHang WHERE SDT = @s", DBConnect.P("@s", sdt))) > 0;
+        }
+
+        public bool ExistsSDTExcept(string sdt, int maKH)
+        {
+            return Convert.ToInt32(DBConnect.ExecuteScalar(
+                "SELECT COUNT(*) FROM KhachHang WHERE SDT = @s AND MaKH <> @id",
+                DBConnect.P("@s", sdt), DBConnect.P("@id", maKH))) > 0;
         }
 
         public int InsertKhachHang(KhachHangDTO kh)
@@ -59,6 +73,30 @@ namespace SportZoneWeb.DAL
             return Convert.ToInt32(DBConnect.ExecuteScalar(sql,
                 DBConnect.P("@ten", kh.HoTen), DBConnect.P("@u", kh.TenDangNhap), DBConnect.P("@mk", kh.MatKhau),
                 DBConnect.P("@sdt", kh.SDT), DBConnect.P("@email", kh.Email), DBConnect.P("@dc", kh.DiaChi)));
+        }
+
+        public bool UpdateProfile(KhachHangDTO kh)
+        {
+            const string sql =
+                "UPDATE KhachHang SET HoTen = @ten, Email = @email, SDT = @sdt, DiaChi = @dc WHERE MaKH = @id";
+            return DBConnect.ExecuteNonQuery(sql,
+                DBConnect.P("@ten", kh.HoTen), DBConnect.P("@email", kh.Email),
+                DBConnect.P("@sdt", kh.SDT), DBConnect.P("@dc", kh.DiaChi),
+                DBConnect.P("@id", kh.MaKH)) > 0;
+        }
+
+        public bool UpdateDiaChi(int maKH, string diaChi)
+        {
+            return DBConnect.ExecuteNonQuery(
+                "UPDATE KhachHang SET DiaChi = @dc WHERE MaKH = @id",
+                DBConnect.P("@dc", diaChi), DBConnect.P("@id", maKH)) > 0;
+        }
+
+        public bool UpdatePassword(int maKH, string matKhauHash)
+        {
+            return DBConnect.ExecuteNonQuery(
+                "UPDATE KhachHang SET MatKhau = @mk WHERE MaKH = @id",
+                DBConnect.P("@mk", matKhauHash), DBConnect.P("@id", maKH)) > 0;
         }
     }
 }
