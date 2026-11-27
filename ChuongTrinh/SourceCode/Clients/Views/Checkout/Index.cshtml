@@ -1,0 +1,196 @@
+@model CheckoutVM
+@{
+    ViewData["Title"] = "Đặt hàng";
+    bool daDangNhap = User.MaKH().HasValue;
+    bool loiPTTT = ViewData.ModelState["MaPTTT"]?.Errors.Count > 0;
+    bool loiGiaoHang = ViewData.ModelState["HoTenNhan"]?.Errors.Count > 0
+        || ViewData.ModelState["SDT"]?.Errors.Count > 0
+        || ViewData.ModelState["DiaChiGiao"]?.Errors.Count > 0;
+    string chon = string.IsNullOrWhiteSpace(Model.ChonDiaChi) ? (daDangNhap ? "account" : "other") : Model.ChonDiaChi;
+    bool hienFormNhap = !daDangNhap || chon == "other" || loiGiaoHang || (chon == "account" && !Model.TaiKhoanMacDinh.CoDiaChi);
+}
+<nav class="breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Trang chủ</a> ›
+    @if (Model.LaMuaNgay)
+    {
+        <a asp-controller="Product" asp-action="Detail" asp-route-id="@Model.MuaNgayMaSP">Sản phẩm</a> <text>›</text>
+        <span>Mua ngay</span>
+    }
+    else
+    {
+        <a asp-controller="Cart" asp-action="Index">Giỏ hàng</a> <text>›</text>
+        <span>Đặt hàng</span>
+    }
+</nav>
+<div class="page-head"><h1>Đặt hàng &amp; thanh toán</h1></div>
+
+@* novalidate: để kiểm tra phía máy chủ (ModelState) hiển thị lỗi ngay dưới từng ô nhập *@
+<form asp-action="Confirm" method="post" class="cart-layout" novalidate>
+    @if (Model.LaMuaNgay)
+    {
+        @* "Mua ngay": chỉ đặt sản phẩm này, giỏ hàng giữ nguyên *@
+        <input type="hidden" asp-for="MuaNgayMaSP" />
+        <input type="hidden" asp-for="MuaNgaySoLuong" />
+    }
+    <div>
+        @if (!daDangNhap)
+        {
+            <div class="alert alert-warn">Bạn có thể tiếp tục với tư cách khách. Khi nhấn đặt hàng, vui lòng đăng nhập hoặc đăng ký để hoàn tất; thông tin giao hàng bạn đã nhập sẽ được giữ lại.</div>
+        }
+        <div asp-validation-summary="ModelOnly" class="alert alert-warn"></div>
+
+        <section class="card form-card" id="ship-section">
+            <div class="section-head">
+                <h3>1. Thông tin giao hàng</h3>
+                @if (daDangNhap)
+                {
+                    <a class="small" asp-controller="Account" asp-action="Addresses">Quản lý sổ địa chỉ ›</a>
+                }
+            </div>
+
+            @if (daDangNhap)
+            {
+                <p class="muted small">Chọn thông tin đã đăng ký trong tài khoản / sổ địa chỉ hoặc nhập địa chỉ và số điện thoại nhận hàng khác.</p>
+
+                <div class="ship-list" role="radiogroup" aria-label="Chọn địa chỉ giao hàng">
+                    <label class="ship-opt">
+                        <input type="radio" name="ChonDiaChi" value="account" checked="@(chon == "account")"
+                               data-name="@Model.TaiKhoanMacDinh.HoTen"
+                               data-phone="@Model.TaiKhoanMacDinh.SDT"
+                               data-addr="@Model.TaiKhoanMacDinh.DiaChi"
+                               data-has-addr="@(Model.TaiKhoanMacDinh.CoDiaChi ? "1" : "0")" />
+                        <div class="ship-body">
+                            <div class="ship-title">
+                                <b>Dùng thông tin tài khoản</b>
+                                <span class="status st-info">Mặc định</span>
+                            </div>
+                            <div class="ship-meta">
+                                <b>@Model.TaiKhoanMacDinh.HoTen</b> · <span>@Model.TaiKhoanMacDinh.SDT</span>
+                            </div>
+                            @if (Model.TaiKhoanMacDinh.CoDiaChi)
+                            {
+                                <div class="muted small">@Model.TaiKhoanMacDinh.DiaChi</div>
+                            }
+                            else
+                            {
+                                <div class="text-bad small">Tài khoản chưa lưu địa chỉ mặc định — hãy nhập địa chỉ nhận hàng bên dưới.</div>
+                            }
+                        </div>
+                    </label>
+
+                    @for (int idx = 0; idx < Model.DiaChiDaDung.Count; idx++)
+                    {
+                        var dc = Model.DiaChiDaDung[idx];
+                        string val = "saved-" + idx;
+                        <label class="ship-opt">
+                            <input type="radio" name="ChonDiaChi" value="@val" checked="@(chon == val)"
+                                   data-name="@dc.HoTen"
+                                   data-phone="@dc.SDT"
+                                   data-addr="@dc.DiaChi"
+                                   data-has-addr="1" />
+                            <div class="ship-body">
+                                <div class="ship-title">
+                                    <b>@dc.HoTen</b> · <span>@dc.SDT</span>
+                                    <span class="muted small">(Sổ địa chỉ / đã dùng)</span>
+                                </div>
+                                <div class="muted small">@dc.DiaChi</div>
+                            </div>
+                        </label>
+                    }
+
+                    <label class="ship-opt">
+                        <input type="radio" name="ChonDiaChi" value="other" checked="@(chon == "other")" />
+                        <div class="ship-body">
+                            <div class="ship-title"><b>+ Thêm địa chỉ và số điện thoại khác</b></div>
+                            <div class="muted small">Giao cho người thân, cơ quan hoặc nhập số điện thoại liên hệ khác.</div>
+                        </div>
+                    </label>
+                </div>
+            }
+
+            <div class="ship-fields" id="ship-fields" hidden="@(!hienFormNhap)">
+                <div class="field">
+                    <label asp-for="HoTenNhan"></label>
+                    <input asp-for="HoTenNhan" required maxlength="100" placeholder="VD: Nguyễn Văn B" />
+                    <span asp-validation-for="HoTenNhan" class="field-err"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="SDT"></label>
+                    <input asp-for="SDT" type="tel" required maxlength="11" placeholder="VD: 0901234567" />
+                    <span asp-validation-for="SDT" class="field-err"></span>
+                </div>
+                <div class="field">
+                    <label asp-for="DiaChiGiao"></label>
+                    <textarea asp-for="DiaChiGiao" rows="2" required maxlength="200" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"></textarea>
+                    <span asp-validation-for="DiaChiGiao" class="field-err"></span>
+                </div>
+                @if (daDangNhap)
+                {
+                    <label class="check">
+                        <input asp-for="LuuDiaChiMacDinh" type="checkbox" />
+                        <span>Lưu địa chỉ này làm địa chỉ mặc định cho tài khoản</span>
+                    </label>
+                }
+            </div>
+        </section>
+
+        <section class="card form-card @(loiPTTT ? "pay-err" : "")">
+            <h3>2. Phương thức thanh toán</h3>
+            <p class="muted small">Chọn một phương thức thanh toán cho đơn hàng. Với VNPay hoặc MoMo, bạn sẽ được chuyển tới cổng thanh toán để quét mã QR; đơn online chỉ được xác nhận sau khi cổng báo thanh toán thành công.</p>
+            @if (CongThanhToan.DemoMode)
+            {
+                <p class="alert alert-warn">Chế độ DEMO: quét QR sẽ giả lập thanh toán, không phát sinh giao dịch tiền thật.</p>
+            }
+            <div class="pay-list">
+                @foreach (var pt in Model.PhuongThucs)
+                {
+                    <label class="pay">
+                        <input type="radio" name="MaPTTT" value="@pt.MaPTTT" checked="@(Model.MaPTTT == pt.MaPTTT)" />
+                        <span>@pt.TenPTTT</span>
+                    </label>
+                }
+            </div>
+            <span asp-validation-for="MaPTTT" class="field-err"></span>
+        </section>
+
+        <section class="card form-card">
+            <h3>3. Mã giảm giá</h3>
+            <div class="input-group">
+                <input type="text" name="MaGiamGia" id="voucher-code" value="@Model.MaGiamGia" placeholder="Nhập mã (nếu có)" maxlength="30" />
+                <button type="button" class="btn btn-outline" id="voucher-apply" data-url="@Url.Action("ApplyVoucher", "Cart", Model.LaMuaNgay ? new { maSP = Model.MuaNgayMaSP, soLuong = Model.MuaNgaySoLuong } : null)">Áp dụng</button>
+                <button type="button" class="btn btn-danger-link" id="voucher-remove" data-url="@Url.Action("RemoveVoucher", "Cart", Model.LaMuaNgay ? new { maSP = Model.MuaNgayMaSP, soLuong = Model.MuaNgaySoLuong } : null)"
+                        hidden="@(string.IsNullOrEmpty(Model.MaGiamGia))">✕ Bỏ mã</button>
+            </div>
+            <div class="voucher-msg @(Model.TienGiam > 0 ? "ok" : "bad")" id="voucher-msg">@Model.ThongBaoMa</div>
+            <span asp-validation-for="MaGiamGia" class="field-err"></span>
+        </section>
+    </div>
+
+    <aside class="card summary">
+        <h3>Đơn hàng (@(Model.Items.Sum(i => i.SoLuong)) sản phẩm)</h3>
+        <div class="mini-items">
+            @foreach (var i in Model.Items)
+            {
+                <div class="mini-item">
+                    <span>@i.TenSP <span class="muted">× @i.SoLuong</span></span>
+                    <b>@WebHelper.Tien(i.ThanhTien)</b>
+                </div>
+            }
+        </div>
+        <div class="sum-row"><span>Tạm tính</span><b>@WebHelper.Tien(Model.TamTinh)</b></div>
+        <div class="sum-row"><span>Giảm giá</span><b class="text-ok" id="sum-discount">- @WebHelper.Tien(Model.TienGiam)</b></div>
+        <div class="sum-row"><span>Phí vận chuyển</span><b>Miễn phí</b></div>
+        <div class="sum-row total"><span>Tổng thanh toán</span><b id="sum-total">@WebHelper.Tien(Model.TongTien)</b></div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Đặt hàng / tiếp tục thanh toán</button>
+        @if (Model.LaMuaNgay)
+        {
+            <a class="btn btn-link btn-block" asp-controller="Product" asp-action="Detail" asp-route-id="@Model.MuaNgayMaSP">← Quay lại sản phẩm</a>
+            <p class="muted small">Mua ngay chỉ đặt sản phẩm này, giỏ hàng của bạn được giữ nguyên.</p>
+        }
+        else
+        {
+            <a class="btn btn-link btn-block" asp-controller="Cart" asp-action="Index">← Quay lại giỏ hàng</a>
+        }
+        <p class="muted small">Đơn COD sẽ chờ cửa hàng xác nhận. Đơn VNPay/MoMo chỉ được xử lý sau khi thanh toán thành công.</p>
+    </aside>
+</form>
