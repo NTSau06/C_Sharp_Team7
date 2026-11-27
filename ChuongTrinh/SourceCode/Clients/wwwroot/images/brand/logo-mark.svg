@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Biểu tượng SportZone">
+  <defs>
+    <linearGradient id="szBgM" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1A314C"/>
+      <stop offset="100%" stop-color="#2E5278"/>
+    </linearGradient>
+    <linearGradient id="szGoldM" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFD447"/>
+      <stop offset="55%" stop-color="#F4B400"/>
+      <stop offset="100%" stop-color="#D99200"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 4 L116 20 C120 21.2 122 24.4 122 28 L122 64 C122 96 98 116 64 125 C30 116 6 96 6 64 L6 28 C6 24.4 8 21.2 12 20 Z" fill="url(#szBgM)" stroke="url(#szGoldM)" stroke-width="5"/>
+  <path d="M26 86 C38 98 68 102 100 74" stroke="rgba(255,255,255,0.22)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M22 44 L44 44 L38 52 L22 52 Z" fill="rgba(255,255,255,0.25)"/>
+  <path d="M26 58 L42 58 L38 64 L26 64 Z" fill="rgba(255,255,255,0.18)"/>
+  <path d="M42 32 L92 32 L68 62 L94 62 L46 102 L62 70 L36 70 Z" fill="url(#szGoldM)"/>
+  <path d="M74 32 L92 32 L68 62 L58 62 Z" fill="#FFF3C4" opacity="0.55"/>
+</svg>

@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/brand/logo.svg" alt="SportZone" width="320" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/brand/logo.svg" alt="SportZone" width="320" />
 </p>
 
 <p align="center">
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/banners/banner-khuyen-mai.svg" alt="Banner SportZone" width="100%" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/banners/banner-khuyen-mai.svg" alt="Banner SportZone" width="100%" />
 </p>
 
 <h3 align="center">Hệ thống quản lý và bán dụng cụ thể thao – Nhóm 7</h3>
@@ -17,21 +17,23 @@
 ## Danh mục
 
 <p>
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/categories/bong-da.svg" width="90" />
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/categories/cau-long.svg" width="90" />
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/categories/bong-ro.svg" width="90" />
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/categories/gym-fitness.svg" width="90" />
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/categories/chay-bo.svg" width="90" />
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/categories/boi-loi.svg" width="90" />
-  <img src="SourceCode/Clients/SportZoneWeb/wwwroot/images/categories/bong-ban.svg" width="90" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/categories/bong-da.svg" width="90" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/categories/cau-long.svg" width="90" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/categories/bong-ro.svg" width="90" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/categories/gym-fitness.svg" width="90" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/categories/chay-bo.svg" width="90" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/categories/boi-loi.svg" width="90" />
+  <img src="ChuongTrinh/SourceCode/Clients/wwwroot/images/categories/bong-ban.svg" width="90" />
 </p>
 
-## Gồm 2 phân hệ dùng chung CSDL `SportZoneDB`
+## Cấu trúc thư mục
 
-| Phân hệ | Công nghệ | Thư mục |
+| Thành phần | Công nghệ / Mô tả | Đường dẫn |
 |---|---|---|
-| **Web bán hàng** (khách hàng) | ASP.NET Core MVC, .NET 10 | [SourceCode/Clients](SourceCode/Clients/README.md) |
-| **Quản trị** (admin) | Windows Forms, .NET Framework 4.8 | [SourceCode/Admin](SourceCode/Admin/README.md) |
+| **Web bán hàng** (khách hàng) | ASP.NET Core MVC, .NET 10 | `ChuongTrinh/SourceCode/Clients/` |
+| **Quản trị** (admin) | Windows Forms, .NET Framework 4.8 | `ChuongTrinh/SourceCode/Admin/` |
+| **Cơ sở dữ liệu** | SQL Server (`SportZoneDB`, 11 bảng) | `ChuongTrinh/Database/SportZoneDB.sql` |
+| **Báo cáo đồ án** | Báo cáo Word & PDF Nhóm 7 | `BaoCao/` |
 
 ## Chạy nhanh
 
@@ -44,5 +46,3 @@
 | Web | http://localhost:5080 — `nguyenvana` / `123456` |
 | Admin | `admin` / `admin123` |
 | Mã giảm giá | `SPORT10`, `CHAOHE20` |
-
-Xem hướng dẫn chi tiết trong README của từng phân hệ.

@@ -1,0 +1,313 @@
+@model ProductDetailVM
+@using System.Globalization
+@{
+    var sp = Model.SanPham;
+    ViewData["Title"] = sp.TenSP;
+    string maSPText = $"#SP{sp.MaSP:D2}";
+    int toiDa = Math.Max(1, Math.Min(sp.SoLuongTon, SportZoneWeb.BLL.GioHangBLL.SoLuongToiDaMoiSanPham));
+    int phanTramTon = sp.HetHang ? 0 : Math.Min(100, Math.Max(14, sp.SoLuongTon * 100 / Math.Max(1, sp.MucTonToiThieu * 3)));
+
+    string[] diemNoiBat = sp.MaDM switch
+    {
+        1 => new[] {
+            "Thiết kế chuẩn thi đấu và tập luyện sân cỏ nhân tạo lẫn sân cỏ tự nhiên.",
+            "Chất liệu bền bỉ, chống mài mòn tốt, giữ form ổn định sau nhiều trận đấu.",
+            "Bảo quản nơi khô thoáng, lau sạch bụi bẩn bằng khăn ẩm sau khi sử dụng."
+        },
+        2 => new[] {
+            "Tối ưu trọng lượng nhẹ và độ linh hoạt khi di chuyển, vung vợt trên sân cầu lông.",
+            "Gia công tỉ mỉ, độ hoàn thiện cao, phù hợp cả người mới chơi lẫn bán chuyên.",
+            "Tránh để nơi nhiệt độ quá cao hoặc ẩm ướt kéo dài để giữ độ bền tối đa."
+        },
+        3 => new[] {
+            "Phù hợp cả thi đấu trong nhà (indoor) lẫn sân ngoài trời (outdoor).",
+            "Thiết kế hỗ trợ độ bám, thoáng khí và giảm chấn khi bật nhảy tốc độ cao.",
+            "Vệ sinh nhẹ sau buổi tập và bảo quản tránh ánh nắng trực tiếp."
+        },
+        4 => new[] {
+            "Hỗ trợ tập luyện hiệu quả tại nhà và phòng Gym, tăng độ an toàn cho cổ tay và khớp.",
+            "Bề mặt chống trượt, vật liệu an toàn không mùi khó chịu khi sử dụng lâu dài.",
+            "Lau khô mồ hôi sau mỗi buổi tập để sản phẩm luôn sạch và bền màu."
+        },
+        5 => new[] {
+            "Trọng lượng siêu nhẹ, tối ưu sự thoải mái cho các cự ly chạy bộ hằng ngày và marathon.",
+            "Chất liệu thoáng khí, chống nước nhẹ, dễ vệ sinh sau khi chạy ngoài trời.",
+            "Nên kiểm tra và vệ sinh định kỳ để duy trì hiệu năng hỗ trợ tốt nhất."
+        },
+        6 => new[] {
+            "Chất liệu kháng clo hồ bơi, chống thấm nước và chịu lực tốt dưới môi trường nước.",
+            "Thiết kế ôm gọn, giảm lực cản nước và hỗ trợ động tác bơi chuẩn kỹ thuật.",
+            "Xả lại bằng nước sạch sau khi bơi và phơi râm mát, không phơi nắng gắt."
+        },
+        7 => new[] {
+            "Đạt tiêu chuẩn tập luyện và thi đấu bóng bàn chuyên nghiệp tại câu lạc bộ hoặc tại nhà.",
+            "Độ nảy, độ bám và kết cấu chắc chắn giúp kiểm soát bóng chính xác.",
+            "Cất gọn trong hộp hoặc bao bảo vệ sau khi sử dụng để tránh ẩm mốc và va đập."
+        },
+        _ => new[] {
+            "Sản phẩm dụng cụ thể thao chính hãng, kiểm tra kỹ lưỡng trước khi đóng gói.",
+            "Phù hợp cho nhu cầu tập luyện hằng ngày và thi đấu phong trào.",
+            "Hỗ trợ đổi trả trong 7 ngày nếu phát sinh lỗi từ nhà sản xuất."
+        }
+    };
+}
+
+<nav class="breadcrumb" aria-label="Đường dẫn">
+    <a asp-controller="Home" asp-action="Index">Trang chủ</a> ›
+    <a asp-controller="Category" asp-action="Products" asp-route-maDM="@sp.MaDM">@sp.TenDM</a> ›
+    <span>@sp.TenSP</span>
+</nav>
+
+<div class="detail-hero card">
+    @* ----- Cột trái: Khung ảnh lớn + phóng to + cam kết dịch vụ *@
+    <div class="detail-gallery">
+        <div class="detail-stage js-zoom-trigger" role="button" tabindex="0" title="Nhấn để phóng to ảnh sản phẩm" aria-label="Phóng to ảnh @sp.TenSP">
+            @WebHelper.Anh(sp.HinhAnh, sp.TenSP, sp.MaDM, "thumb-lg")
+            @if (sp.HetHang)
+            {
+                <span class="tag tag-bad">Hết hàng</span>
+            }
+            else if (sp.SapHetHang)
+            {
+                <span class="tag tag-warn">⚠️ Sắp hết</span>
+            }
+            else if (sp.DaBan >= 3)
+            {
+                <span class="tag tag-ok">🔥 Bán chạy</span>
+            }
+            <span class="zoom-pill">🔍 Phóng to</span>
+        </div>
+
+        <div class="detail-trust">
+            <div class="trust-item">
+                <span class="trust-ic">🛡️</span>
+                <div>
+                    <b>Chính hãng 100%</b>
+                    <span>Nguồn gốc rõ ràng</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <span class="trust-ic">🚚</span>
+                <div>
+                    <b>Giao toàn quốc</b>
+                    <span>Đồng kiểm khi nhận</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <span class="trust-ic">🔄</span>
+                <div>
+                    <b>Đổi trả 7 ngày</b>
+                    <span>Hỗ trợ lỗi NSX</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ----- Cột phải: Thông tin chính, giá, ưu đãi, chọn số lượng & đặt mua *@
+    <div class="detail-info">
+        <div class="detail-meta-top">
+            <a class="cat-pill" asp-controller="Category" asp-action="Products" asp-route-maDM="@sp.MaDM">
+                @WebHelper.IconDanhMuc(sp.TenDM) @sp.TenDM
+            </a>
+            <span class="meta-dot">•</span>
+            <span class="muted small">Mã SP: <b>@maSPText</b></span>
+            <span class="meta-dot">•</span>
+            <span class="muted small">@(sp.DaBan > 0 ? $"Đã bán {sp.DaBan}" : "Sản phẩm mới")</span>
+        </div>
+
+        <h1 class="detail-title">@sp.TenSP</h1>
+
+        <div class="detail-price-box">
+            <div class="detail-price-row">
+                <span class="detail-price">@WebHelper.Tien(sp.GiaBan)</span>
+                <span class="vat-note">Giá niêm yết · Đã gồm VAT</span>
+            </div>
+
+            <div class="stock-bar-wrap">
+                <div class="stock">
+                    @if (sp.HetHang)
+                    {
+                        <span class="tag tag-bad static">Hết hàng</span>
+                        <span class="muted small">Sản phẩm tạm thời hết hàng trong kho</span>
+                    }
+                    else if (sp.SapHetHang)
+                    {
+                        <span class="tag tag-warn static">Sắp hết hàng</span>
+                        <span class="muted small">Chỉ còn <b>@sp.SoLuongTon</b> sản phẩm cuối cùng</span>
+                    }
+                    else
+                    {
+                        <span class="tag tag-ok static">Còn hàng</span>
+                        <span class="muted small">Sẵn sàng giao ngay · <b>@sp.SoLuongTon</b> sản phẩm trong kho</span>
+                    }
+                </div>
+                <div class="stock-meter" aria-hidden="true">
+                    <div class="stock-meter-fill @(sp.HetHang ? "bad" : sp.SapHetHang ? "warn" : "ok")" style="width:@phanTramTon%"></div>
+                </div>
+            </div>
+
+            @if (Model.MaGiamGia.Count > 0)
+            {
+                <div class="detail-vouchers">
+                    <span class="dv-label">🎟️ Ưu đãi đang có:</span>
+                    <div class="dv-list">
+                        @foreach (var m in Model.MaGiamGia.Take(3))
+                        {
+                            <button type="button" class="dv-chip" data-copy="@m.Code"
+                                    title="Giảm @m.PhanTramGiam% tối đa @WebHelper.Tien(m.SoTienGiamToiDa) cho đơn từ @WebHelper.Tien(m.DonToiThieu)">
+                                <b>@m.Code</b> −@m.PhanTramGiam%
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <form asp-controller="Cart" asp-action="Add" method="post" class="detail-buy-box js-add-cart">
+            <input type="hidden" name="maSP" value="@sp.MaSP" />
+            <input type="hidden" name="returnUrl" value="@Url.Action("Detail", "Product", new { id = sp.MaSP })" />
+
+            <div class="qty-row">
+                <label class="qty-label" for="detail-qty">Số lượng</label>
+                @* A1: hết hàng => vô hiệu hóa ô số lượng và nút "Thêm vào giỏ hàng" *@
+                <div class="qty">
+                    <button type="button" class="qty-btn" data-step="-1" disabled="@sp.HetHang" aria-label="Giảm số lượng">−</button>
+                    <input id="detail-qty" type="number" name="soLuong" value="1" min="1" max="@toiDa" disabled="@sp.HetHang"
+                           data-ton="@sp.SoLuongTon" data-warn="#detail-warn"
+                           data-unit-price="@sp.GiaBan.ToString(CultureInfo.InvariantCulture)"
+                           data-subtotal="#detail-subtotal" aria-label="Số lượng" />
+                    <button type="button" class="qty-btn" data-step="1" disabled="@sp.HetHang" aria-label="Tăng số lượng">+</button>
+                </div>
+                @if (!sp.HetHang)
+                {
+                    <div class="subtotal-live">
+                        <span class="muted small">Tạm tính:</span>
+                        <b id="detail-subtotal">@WebHelper.Tien(sp.GiaBan)</b>
+                    </div>
+                }
+            </div>
+
+            <div class="inline-warn qty-warn" id="detail-warn" role="alert" hidden></div>
+
+            <div class="detail-cta">
+                <button type="submit" class="btn btn-outline btn-lg" disabled="@sp.HetHang">
+                    @(sp.HetHang ? "Hết hàng" : "🛒 Thêm vào giỏ hàng")
+                </button>
+                @if (!sp.HetHang)
+                {
+                    <button type="submit" form="buy-now-form" class="btn btn-yellow btn-lg">⚡ Mua ngay</button>
+                }
+            </div>
+        </form>
+
+        @* "Mua ngay": tới thẳng trang đặt hàng với riêng sản phẩm này (không thêm vào giỏ).
+           site.js chép số lượng đang chọn vào ô soLuong trước khi gửi. *@
+        <form id="buy-now-form" class="js-buy-now" method="get" asp-controller="Checkout" asp-action="Index" hidden>
+            <input type="hidden" name="maSP" value="@sp.MaSP" />
+            <input type="hidden" name="soLuong" value="1" />
+        </form>
+
+        @if (Model.TrongGio > 0)
+        {
+            <div class="in-cart-note">
+                <span>🛒 Bạn đang có <b>@Model.TrongGio</b> sản phẩm này trong giỏ hàng.</span>
+                <a asp-controller="Cart" asp-action="Index">Xem giỏ hàng ›</a>
+            </div>
+        }
+
+        <div class="detail-highlights">
+            <div class="hl-item">
+                <span class="hl-k">Danh mục</span>
+                <b class="hl-v">@sp.TenDM</b>
+            </div>
+            <div class="hl-item">
+                <span class="hl-k">Mã sản phẩm</span>
+                <b class="hl-v">@maSPText</b>
+            </div>
+            <div class="hl-item">
+                <span class="hl-k">Thanh toán</span>
+                <b class="hl-v">COD khi nhận hàng</b>
+            </div>
+            <div class="hl-item">
+                <span class="hl-k">Tình trạng</span>
+                <b class="hl-v">@sp.TinhTrang</b>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ----- Khối thông tin chi tiết dạng Tab *@
+<section class="detail-tabs card section" data-tabs>
+    <div class="tab-nav" role="tablist" aria-label="Chi tiết sản phẩm">
+        <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-desc">📝 Mô tả sản phẩm</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-specs">📋 Thông số &amp; kho hàng</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-policy">🚚 Giao hàng &amp; đổi trả</button>
+    </div>
+
+    <div class="tab-panel" id="tab-desc" role="tabpanel">
+        <p class="desc-lead">@(string.IsNullOrWhiteSpace(sp.MoTa) ? "Sản phẩm dụng cụ thể thao chính hãng được phân phối bởi SportZone." : sp.MoTa)</p>
+        <h3>Điểm nổi bật &amp; lưu ý sử dụng</h3>
+        <ul class="feature-list">
+            @foreach (var line in diemNoiBat)
+            {
+                <li>@line</li>
+            }
+        </ul>
+    </div>
+
+    <div class="tab-panel" id="tab-specs" role="tabpanel" hidden>
+        <table class="specs">
+            <tr><th>Mã sản phẩm</th><td>@maSPText</td></tr>
+            <tr><th>Tên sản phẩm</th><td>@sp.TenSP</td></tr>
+            <tr><th>Danh mục</th><td><a asp-controller="Category" asp-action="Products" asp-route-maDM="@sp.MaDM">@sp.TenDM</a></td></tr>
+            <tr><th>Giá bán niêm yết</th><td><b class="text-bad">@WebHelper.Tien(sp.GiaBan)</b></td></tr>
+            <tr><th>Tình trạng kho</th><td>@sp.TinhTrang</td></tr>
+            <tr><th>Số lượng sẵn có</th><td>@sp.SoLuongTon sản phẩm</td></tr>
+            <tr><th>Số lượng đã bán</th><td>@sp.DaBan sản phẩm</td></tr>
+            <tr><th>Phương thức thanh toán</th><td>Thanh toán tiền mặt khi nhận hàng (COD)</td></tr>
+            <tr><th>Chính sách hỗ trợ</th><td>Kiểm tra hàng trước khi nhận · Đổi mới trong 7 ngày nếu có lỗi NSX</td></tr>
+        </table>
+    </div>
+
+    <div class="tab-panel" id="tab-policy" role="tabpanel" hidden>
+        <div class="policy-grid">
+            <div class="policy-box">
+                <h4>🚚 Giao hàng toàn quốc</h4>
+                <p>Nội thành TP.HCM giao trong 1–2 ngày làm việc; các tỉnh thành khác từ 2–4 ngày làm việc. Đóng gói chống sốc cẩn thận.</p>
+            </div>
+            <div class="policy-box">
+                <h4>💵 Thanh toán linh hoạt (COD)</h4>
+                <p>Khách hàng được kiểm tra ngoại quan, mẫu mã và số lượng sản phẩm trước khi thanh toán trực tiếp cho nhân viên giao hàng.</p>
+            </div>
+            <div class="policy-box">
+                <h4>🔄 Đổi trả dễ dàng trong 7 ngày</h4>
+                <p>Hỗ trợ đổi mới miễn phí trong vòng 7 ngày nếu sản phẩm bị lỗi kỹ thuật từ nhà sản xuất hoặc giao nhầm mẫu.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (Model.LienQuan.Count > 0)
+{
+    <section class="section">
+        <div class="section-head">
+            <h2>Sản phẩm cùng danh mục</h2>
+            <a asp-controller="Category" asp-action="Products" asp-route-maDM="@sp.MaDM">Xem tất cả @sp.TenDM ›</a>
+        </div>
+        <div class="grid">
+            @foreach (var item in Model.LienQuan)
+            {
+                <partial name="_ProductCard" model="item" />
+            }
+        </div>
+    </section>
+}
+
+@* ----- Lightbox phóng to ảnh sản phẩm *@
+<div class="lightbox" id="img-lightbox" role="dialog" aria-modal="true" aria-label="Xem ảnh phóng to" hidden>
+    <button type="button" class="lightbox-close" aria-label="Đóng">✕</button>
+    <div class="lightbox-body">
+        <img id="lightbox-img" src="" alt="" />
+        <p id="lightbox-cap"></p>
+    </div>
+</div>
