@@ -90,7 +90,7 @@
                 <span class="trust-ic">🚚</span>
                 <div>
                     <b>Giao toàn quốc</b>
-                    <span>Đồng kiểm khi nhận</span>
+                    <span>COD · VNPay · MoMo</span>
                 </div>
             </div>
             <div class="trust-item">
@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    @* ----- Cột phải: Thông tin chính, giá, ưu đãi, chọn số lượng & đặt mua *@
+    @* ----- Cột phải: Thông tin chính, đánh giá, giá, ưu đãi, chọn số lượng & đặt mua *@
     <div class="detail-info">
         <div class="detail-meta-top">
             <a class="cat-pill" asp-controller="Category" asp-action="Products" asp-route-maDM="@sp.MaDM">
@@ -116,6 +116,14 @@
         </div>
 
         <h1 class="detail-title">@sp.TenSP</h1>
+
+        @if (Model.DanhGias.Count > 0)
+        {
+            <a class="rating-line" href="#danh-gia">
+                <span class="stars" style="--p:@((Model.DiemTrungBinh / 5 * 100).ToString("0", CultureInfo.InvariantCulture))%"></span>
+                <b>@Model.DiemTrungBinh.ToString("0.0")</b> · @Model.DanhGias.Count đánh giá
+            </a>
+        }
 
         <div class="detail-price-box">
             <div class="detail-price-row">
@@ -200,11 +208,16 @@
             </div>
         </form>
 
-        @* "Mua ngay": tới thẳng trang đặt hàng với riêng sản phẩm này (không thêm vào giỏ).
-           site.js chép số lượng đang chọn vào ô soLuong trước khi gửi. *@
+        @* "Mua ngay": tới thẳng trang đặt hàng với riêng sản phẩm này (không thêm vào giỏ). *@
         <form id="buy-now-form" class="js-buy-now" method="get" asp-controller="Checkout" asp-action="Index" hidden>
             <input type="hidden" name="maSP" value="@sp.MaSP" />
             <input type="hidden" name="soLuong" value="1" />
+        </form>
+
+        <form asp-controller="Wishlist" asp-action="Toggle" method="post" class="wish-inline" style="margin:0">
+            <input type="hidden" name="maSP" value="@sp.MaSP" />
+            <input type="hidden" name="returnUrl" value="@Url.Action("Detail", "Product", new { id = sp.MaSP })" />
+            <button type="submit" class="btn btn-outline btn-block">@(Model.YeuThich ? "♥ Đã lưu vào sản phẩm yêu thích" : "♡ Thêm vào danh sách yêu thích")</button>
         </form>
 
         @if (Model.TrongGio > 0)
@@ -217,8 +230,8 @@
 
         <div class="detail-highlights">
             <div class="hl-item">
-                <span class="hl-k">Danh mục</span>
-                <b class="hl-v">@sp.TenDM</b>
+                <span class="hl-k">Thương hiệu</span>
+                <b class="hl-v">@ThuocTinhSanPham.ThuongHieu(sp)</b>
             </div>
             <div class="hl-item">
                 <span class="hl-k">Mã sản phẩm</span>
@@ -226,7 +239,7 @@
             </div>
             <div class="hl-item">
                 <span class="hl-k">Thanh toán</span>
-                <b class="hl-v">COD khi nhận hàng</b>
+                <b class="hl-v">COD · VNPay · MoMo</b>
             </div>
             <div class="hl-item">
                 <span class="hl-k">Tình trạng</span>
@@ -260,12 +273,23 @@
             <tr><th>Mã sản phẩm</th><td>@maSPText</td></tr>
             <tr><th>Tên sản phẩm</th><td>@sp.TenSP</td></tr>
             <tr><th>Danh mục</th><td><a asp-controller="Category" asp-action="Products" asp-route-maDM="@sp.MaDM">@sp.TenDM</a></td></tr>
+            <tr><th>Thương hiệu</th><td>@ThuocTinhSanPham.ThuongHieu(sp)</td></tr>
+            <tr><th>Kích cỡ</th><td>@string.Join(", ", ThuocTinhSanPham.KichCo(sp))</td></tr>
+            <tr>
+                <th>Màu sắc</th>
+                <td>
+                    @foreach (var mau in ThuocTinhSanPham.MauSac(sp))
+                    {
+                        <span class="swatch" style="--m:@ThuocTinhSanPham.MaMau(mau)" title="@mau"></span>
+                        <span class="swatch-name">@mau</span>
+                    }
+                </td>
+            </tr>
             <tr><th>Giá bán niêm yết</th><td><b class="text-bad">@WebHelper.Tien(sp.GiaBan)</b></td></tr>
             <tr><th>Tình trạng kho</th><td>@sp.TinhTrang</td></tr>
             <tr><th>Số lượng sẵn có</th><td>@sp.SoLuongTon sản phẩm</td></tr>
             <tr><th>Số lượng đã bán</th><td>@sp.DaBan sản phẩm</td></tr>
-            <tr><th>Phương thức thanh toán</th><td>Thanh toán tiền mặt khi nhận hàng (COD)</td></tr>
-            <tr><th>Chính sách hỗ trợ</th><td>Kiểm tra hàng trước khi nhận · Đổi mới trong 7 ngày nếu có lỗi NSX</td></tr>
+            <tr><th>Phương thức thanh toán</th><td>Thanh toán khi nhận hàng (COD) · VNPay · Ví MoMo</td></tr>
         </table>
     </div>
 
@@ -276,8 +300,8 @@
                 <p>Nội thành TP.HCM giao trong 1–2 ngày làm việc; các tỉnh thành khác từ 2–4 ngày làm việc. Đóng gói chống sốc cẩn thận.</p>
             </div>
             <div class="policy-box">
-                <h4>💵 Thanh toán linh hoạt (COD)</h4>
-                <p>Khách hàng được kiểm tra ngoại quan, mẫu mã và số lượng sản phẩm trước khi thanh toán trực tiếp cho nhân viên giao hàng.</p>
+                <h4>💳 Thanh toán linh hoạt</h4>
+                <p>Hỗ trợ thanh toán tiền mặt khi nhận hàng (COD) được đồng kiểm, hoặc thanh toán online nhanh qua VNPay / Ví MoMo.</p>
             </div>
             <div class="policy-box">
                 <h4>🔄 Đổi trả dễ dàng trong 7 ngày</h4>
@@ -285,6 +309,70 @@
             </div>
         </div>
     </div>
+</section>
+
+@* ----- Đánh giá & nhận xét (chỉ khách đã mua) *@
+<section class="section card reviews" id="danh-gia">
+    <h2>⭐ Đánh giá &amp; nhận xét</h2>
+    <div class="review-summary">
+        <div class="review-score">
+            <b>@(Model.DanhGias.Count == 0 ? "–" : Model.DiemTrungBinh.ToString("0.0"))</b><span class="muted">/5</span>
+            <span class="stars" style="--p:@((Model.DiemTrungBinh / 5 * 100).ToString("0", CultureInfo.InvariantCulture))%"></span>
+            <span class="muted small">@Model.DanhGias.Count đánh giá</span>
+        </div>
+        <div class="review-bars">
+            @for (int sao = 5; sao >= 1; sao--)
+            {
+                int dem = Model.DemSao(sao);
+                int pt = Model.DanhGias.Count == 0 ? 0 : dem * 100 / Model.DanhGias.Count;
+                <div class="review-bar"><span>@sao ★</span><span class="bar"><span style="width:@(pt)%"></span></span><span class="muted small">@dem</span></div>
+            }
+        </div>
+    </div>
+
+    @if (!User.MaKH().HasValue)
+    {
+        <p class="muted"><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@(Url.Action("Detail", "Product", new { id = sp.MaSP }) + "#danh-gia")">Đăng nhập</a> để đánh giá sản phẩm bạn đã mua.</p>
+    }
+    else if (!Model.DuocDanhGia)
+    {
+        <p class="muted">Chỉ khách hàng đã mua và nhận sản phẩm này (đơn "Đã giao hàng") mới được đánh giá.</p>
+    }
+    else
+    {
+        <form asp-controller="Product" asp-action="Review" method="post" class="review-form">
+            <input type="hidden" name="maSP" value="@sp.MaSP" />
+            <b>@(Model.DanhGiaCuaToi == null ? "Viết đánh giá của bạn" : "Sửa đánh giá của bạn")</b>
+            <div class="star-input" role="radiogroup" aria-label="Số sao">
+                @for (int sao = 5; sao >= 1; sao--)
+                {
+                    <input type="radio" id="sao-@sao" name="soSao" value="@sao" required checked="@(Model.DanhGiaCuaToi?.SoSao == sao)" />
+                    <label for="sao-@sao" title="@sao sao">★</label>
+                }
+            </div>
+            <textarea name="noiDung" rows="3" minlength="10" maxlength="500" required placeholder="Chia sẻ cảm nhận về chất lượng sản phẩm (10–500 ký tự)">@Model.DanhGiaCuaToi?.NoiDung</textarea>
+            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+        </form>
+    }
+
+    @if (Model.DanhGias.Count == 0)
+    {
+        <p class="muted">Chưa có đánh giá nào cho sản phẩm này.</p>
+    }
+    @foreach (var dg in Model.DanhGias)
+    {
+        <div class="review">
+            <div class="review-head">
+                <span class="avatar">@WebHelper.VietTat(dg.HoTen)</span>
+                <div>
+                    <b>@dg.HoTen</b> <span class="tag tag-ok static small">✔ Đã mua hàng</span><br />
+                    <span class="stars" style="--p:@(dg.SoSao * 20)%"></span>
+                    <span class="muted small">@dg.NgayDanhGia.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+            </div>
+            <p>@dg.NoiDung</p>
+        </div>
+    }
 </section>
 
 @if (Model.LienQuan.Count > 0)
@@ -296,6 +384,19 @@
         </div>
         <div class="grid">
             @foreach (var item in Model.LienQuan)
+            {
+                <partial name="_ProductCard" model="item" />
+            }
+        </div>
+    </section>
+}
+
+@if (Model.DaXem.Count > 0)
+{
+    <section class="section">
+        <h2>🕘 Sản phẩm bạn đã xem</h2>
+        <div class="grid">
+            @foreach (var item in Model.DaXem)
             {
                 <partial name="_ProductCard" model="item" />
             }

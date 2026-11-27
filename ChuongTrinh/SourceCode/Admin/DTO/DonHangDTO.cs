@@ -22,6 +22,7 @@ namespace SportZoneAdmin.DTO
         public string SDT { get; set; }
         public string Email { get; set; }
         public string TenPTTT { get; set; }
+        public string TrangThaiThanhToan { get; set; }
         public string TenQTV { get; set; }
         public string CodeMGG { get; set; }
 

@@ -130,6 +130,10 @@
       <Link>Database\SportZoneDB.sql</Link>
       <LogicalName>SportZoneAdmin.SportZoneDB.sql</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\..\Database\CapNhatChucNangWeb.sql">
+      <Link>Database\CapNhatChucNangWeb.sql</Link>
+      <LogicalName>SportZoneAdmin.CapNhatChucNangWeb.sql</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

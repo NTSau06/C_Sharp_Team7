@@ -135,6 +135,34 @@ namespace SportZoneAdmin.DAL
             SqlConnection.ClearAllPools();
         }
 
+        public static void ApplyWebUpdates(string server)
+        {
+            const string resourceName = "SportZoneAdmin.CapNhatChucNangWeb.sql";
+            Assembly asm = Assembly.GetExecutingAssembly();
+            using (Stream stream = asm.GetManifestResourceStream(resourceName))
+            {
+                if (stream == null)
+                    throw new FileNotFoundException("Không tìm thấy script cập nhật chức năng Web trong project.");
+
+                string script;
+                using (var reader = new StreamReader(stream, Encoding.UTF8, true))
+                    script = reader.ReadToEnd();
+
+                using (var conn = new SqlConnection(MasterConnectionString(server)))
+                {
+                    conn.Open();
+                    foreach (string batch in SplitBatches(script))
+                    {
+                        using (var cmd = new SqlCommand(batch, conn))
+                        {
+                            cmd.CommandTimeout = 120;
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+        }
+
         // ------------------------------------------------------------------ đọc script
         /// <summary>
         /// Đọc script SportZoneDB.sql: ưu tiên bản nhúng trong .exe,

@@ -1,7 +1,10 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Localization;
+using SportZoneWeb.BLL;
 using SportZoneWeb.DAL;
+using SportZoneWeb.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +29,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 var app = builder.Build();
+
+EmailService.Nap(builder.Configuration);
+EmailService.Logger = app.Logger;
+CongThanhToan.Cfg = builder.Configuration;
+CongThanhToan.DemoMode = app.Environment.IsDevelopment() && builder.Configuration.GetValue("DemoPayment:Enabled", false);
 
 // ---------------------------------------------------------------- CSDL dùng chung với phân hệ Admin
 // Tự dò máy chủ SQL Server và tự tạo CSDL SportZoneDB (11 bảng + dữ liệu mẫu) nếu chưa có.
@@ -100,6 +108,22 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 
 app.UseSession();
 app.UseAuthentication();
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        int? maKH = context.User.MaKH();
+        if (!maKH.HasValue || !new TaiKhoanBLL().TaiKhoanConHoatDong(maKH.Value))
+        {
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            context.Session.Clear();
+            context.Response.Redirect("/Account/Login?blocked=1");
+            return;
+        }
+    }
+
+    await next();
+});
 app.UseAuthorization();
 
 app.MapControllerRoute(

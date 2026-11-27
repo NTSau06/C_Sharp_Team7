@@ -63,11 +63,28 @@ else
                     <tr class="total"><td colspan="3">Tổng thanh toán</td><td class="num">@WebHelper.Tien(dh.TongTien)</td></tr>
                 </tfoot>
             </table>
-            <p class="muted small">Thanh toán: @dh.TenPTTT · Giao tới: @dh.DiaChiGiao</p>
+            <p class="muted small">Thanh toán: @dh.TenPTTT · <b>@dh.TrangThaiThanhToan</b> · Giao tới: @dh.DiaChiGiao</p>
             @if (!string.IsNullOrEmpty(dh.GhiChu))
             {
-                <p class="small text-bad">Ghi chú từ cửa hàng: @dh.GhiChu</p>
+                <p class="small text-bad">Ghi chú: @dh.GhiChu</p>
             }
+            <div class="order-actions">
+                <a class="btn btn-sm btn-outline" asp-action="OrderDetail" asp-route-id="@dh.MaDH">Xem chi tiết & theo dõi</a>
+                @if (CongThanhToan.NhanDang(dh.TenPTTT) != null &&
+                     dh.TrangThaiThanhToan != TrangThaiThanhToanDH.Da &&
+                     dh.TrangThai != TrangThaiDonHang.DaHuy)
+                {
+                    <a class="btn btn-sm btn-primary" asp-controller="Payment" asp-action="Start" asp-route-maDH="@dh.MaDH">Thanh toán ngay</a>
+                }
+                <form asp-action="Reorder" method="post">
+                    <input type="hidden" name="id" value="@dh.MaDH" />
+                    <button type="submit" class="btn btn-sm btn-primary">🛒 Mua lại</button>
+                </form>
+                @if (dh.TrangThai == TrangThaiDonHang.ChoXacNhan)
+                {
+                    <a class="btn-danger-link small" href="@Url.Action("OrderDetail", new { id = dh.MaDH })#huy">Hủy đơn</a>
+                }
+            </div>
         </details>
     }
 }

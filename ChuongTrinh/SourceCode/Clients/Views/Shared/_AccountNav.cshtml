@@ -1,0 +1,17 @@
+@* Menu trang tài khoản. Trang con đặt ViewData["TabTaiKhoan"] = "ho-so" | "dia-chi" | "mat-khau" | "don-hang" | "yeu-thich" *@
+@{
+    string tab = ViewData["TabTaiKhoan"] as string;
+    string Css(string t) => t == tab ? "active" : "";
+}
+<aside class="card account-nav">
+    <div class="account-hello">
+        <span class="avatar">@WebHelper.VietTat(User.HoTen())</span>
+        <div><span class="muted small">Xin chào,</span><br /><b>@User.HoTen()</b></div>
+    </div>
+    <a class="@Css("ho-so")" asp-controller="Account" asp-action="Profile">👤 Hồ sơ cá nhân</a>
+    <a class="@Css("dia-chi")" asp-controller="Account" asp-action="Addresses">📍 Sổ địa chỉ</a>
+    <a class="@Css("mat-khau")" asp-controller="Account" asp-action="ChangePassword">🔒 Đổi mật khẩu</a>
+    <a class="@Css("don-hang")" asp-controller="Account" asp-action="Orders">📄 Đơn hàng của tôi</a>
+    <a class="@Css("yeu-thich")" asp-controller="Wishlist" asp-action="Index">♥ Sản phẩm yêu thích</a>
+    <form asp-controller="Account" asp-action="Logout" method="post"><button type="submit">↩ Đăng xuất</button></form>
+</aside>

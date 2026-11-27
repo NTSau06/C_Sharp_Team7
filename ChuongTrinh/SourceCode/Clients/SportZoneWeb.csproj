@@ -11,11 +11,14 @@
   <ItemGroup>
     <!-- ADO.NET cho SQL Server (Visual Studio tự tải về khi Build) -->
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.2" />
+    <PackageReference Include="QRCoder" Version="1.9.0" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Dùng chung script tạo CSDL với phân hệ Admin: Web tự tạo SportZoneDB nếu chưa có -->
     <EmbeddedResource Include="..\..\Database\SportZoneDB.sql" Link="Database\SportZoneDB.sql" LogicalName="SportZoneWeb.SportZoneDB.sql" />
+    <!-- Cấu trúc bổ sung cho Web (địa chỉ, yêu thích, đánh giá, thanh toán, thông báo) - chạy mỗi lần khởi động, không xóa dữ liệu -->
+    <EmbeddedResource Include="..\..\Database\CapNhatChucNangWeb.sql" Link="Database\CapNhatChucNangWeb.sql" LogicalName="SportZoneWeb.CapNhatChucNangWeb.sql" />
   </ItemGroup>
 
 </Project>

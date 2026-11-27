@@ -104,3 +104,19 @@
         }
     </div>
 </section>
+
+@* ---------------- Sản phẩm đã xem gần đây (lưu trong Session) *@
+@if (Model.DaXem.Count > 0)
+{
+    <section class="section">
+        <div class="section-head">
+            <h2>🕘 Bạn đã xem gần đây</h2>
+        </div>
+        <div class="grid">
+            @foreach (var sp in Model.DaXem)
+            {
+                <partial name="_ProductCard" model="sp" />
+            }
+        </div>
+    </section>
+}

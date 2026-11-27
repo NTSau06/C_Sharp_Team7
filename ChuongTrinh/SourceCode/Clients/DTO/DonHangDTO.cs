@@ -13,6 +13,9 @@ namespace SportZoneWeb.DTO
         public int MaKH { get; set; }
         public int MaPTTT { get; set; }
         public int? MaMGG { get; set; }
+        public string TrangThaiThanhToan { get; set; } = TrangThaiThanhToanDH.Chua;
+        public string MaGiaoDich { get; set; }
+        public string MaXacThucDemo { get; set; }
 
         // Thông tin hiển thị (JOIN)
         public string TenPTTT { get; set; }
@@ -59,5 +62,16 @@ namespace SportZoneWeb.DTO
                 default: return "st-wait";
             }
         }
+    }
+}
+
+namespace SportZoneWeb.DTO
+{
+    /// <summary>Trạng thái thanh toán của đơn (cột DonHang.TrangThaiThanhToan)</summary>
+    public static class TrangThaiThanhToanDH
+    {
+        public const string Chua = "Chưa thanh toán";
+        public const string Da = "Đã thanh toán";
+        public const string ThatBai = "Thanh toán thất bại";
     }
 }

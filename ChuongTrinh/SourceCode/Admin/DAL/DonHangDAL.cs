@@ -10,7 +10,7 @@ namespace SportZoneAdmin.DAL
     {
         private const string SelectSql =
             "SELECT dh.MaDH, dh.NgayDat, dh.TrangThai, dh.DiaChiGiao, dh.TienGiam, dh.TongTien, dh.GhiChu, " +
-            "       dh.MaKH, dh.MaPTTT, dh.MaQTV, dh.MaMGG, kh.HoTen AS TenKH, kh.SDT, kh.Email, pt.TenPTTT, " +
+            "       dh.MaKH, dh.MaPTTT, dh.MaQTV, dh.MaMGG, dh.TrangThaiThanhToan, kh.HoTen AS TenKH, kh.SDT, kh.Email, pt.TenPTTT, " +
             "       q.HoTen AS TenQTV, m.Code AS CodeMGG " +
             "FROM DonHang dh " +
             "JOIN KhachHang kh ON kh.MaKH = dh.MaKH " +
@@ -37,6 +37,7 @@ namespace SportZoneAdmin.DAL
                 SDT = r.Str("SDT"),
                 Email = r.Str("Email"),
                 TenPTTT = r.Str("TenPTTT"),
+                TrangThaiThanhToan = r.Str("TrangThaiThanhToan"),
                 TenQTV = r.Str("TenQTV"),
                 CodeMGG = r.Str("CodeMGG")
             };
@@ -70,11 +71,20 @@ namespace SportZoneAdmin.DAL
         public DonHangDTO GetForUpdate(SqlTransaction t, int maDH)
         {
             DataTable dt = DBConnect.ExecuteQuery(t,
-                "SELECT MaDH, TrangThai, MaMGG FROM DonHang WITH (UPDLOCK, ROWLOCK) WHERE MaDH = @id",
+                "SELECT dh.MaDH, dh.TrangThai, dh.MaMGG, dh.TrangThaiThanhToan, pt.TenPTTT " +
+                "FROM DonHang dh WITH (UPDLOCK, ROWLOCK) JOIN PhuongThucThanhToan pt ON pt.MaPTTT = dh.MaPTTT " +
+                "WHERE dh.MaDH = @id",
                 DBConnect.P("@id", maDH));
             if (dt.Rows.Count == 0) return null;
             DataRow r = dt.Rows[0];
-            return new DonHangDTO { MaDH = r.Int("MaDH"), TrangThai = r.Str("TrangThai"), MaMGG = r.IntN("MaMGG") };
+            return new DonHangDTO
+            {
+                MaDH = r.Int("MaDH"),
+                TrangThai = r.Str("TrangThai"),
+                MaMGG = r.IntN("MaMGG"),
+                TrangThaiThanhToan = r.Str("TrangThaiThanhToan"),
+                TenPTTT = r.Str("TenPTTT")
+            };
         }
 
         private const string ChiTietSql =

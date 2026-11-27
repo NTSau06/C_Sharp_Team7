@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{5B1E7C3D-2A4F-4C8E-9D6B-3F0A1E2C4D5B}"
 	ProjectSection(SolutionItems) = preProject
 		ChuongTrinh\Database\SportZoneDB.sql = ChuongTrinh\Database\SportZoneDB.sql
+		ChuongTrinh\Database\CapNhatChucNangWeb.sql = ChuongTrinh\Database\CapNhatChucNangWeb.sql
 	EndProjectSection
 EndProject
 Global

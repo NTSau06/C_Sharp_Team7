@@ -1,0 +1,46 @@
+@model DemoPaymentVM
+@{
+    ViewData["Title"] = "Thanh toán demo";
+}
+<nav class="breadcrumb"><a asp-controller="Home" asp-action="Index">Trang chủ</a> › <span>Thanh toán demo</span></nav>
+<section class="card form-card center">
+    <h1>Thanh toán @Model.TenCong — DEMO</h1>
+    <p>Đơn hàng <b class="order-code">#DH@Model.MaDH</b> · Tổng tiền <b>@WebHelper.Tien(Model.TongTien)</b></p>
+    <div class="alert alert-warn" role="note">Đây chỉ là mô phỏng. Quét QR sẽ đánh dấu đơn đã thanh toán; không có tiền thật được chuyển.</div>
+    <img src="@Model.QrDataUri" alt="Mã QR thanh toán demo cho đơn hàng @Model.MaDH" width="300" height="300" />
+    <p class="muted">Dùng điện thoại quét mã và mở liên kết để xác nhận thanh toán demo.</p>
+    <p class="alert alert-info" id="demo-payment-status" role="status">Đang chờ quét mã QR…</p>
+    <a class="btn btn-outline" href="@Model.ScanUrl" target="_blank" rel="noopener">Giả lập quét QR trên thiết bị này</a>
+    <p class="muted small">Sau khi quét thành công, trang này sẽ tự chuyển tới kết quả đơn hàng.</p>
+    <a class="btn btn-link" asp-controller="Account" asp-action="OrderDetail" asp-route-id="@Model.MaDH">Quay lại chi tiết đơn</a>
+</section>
+
+<div id="demo-payment" data-status-url="@Model.StatusUrl" data-success-url="@Model.SuccessUrl"></div>
+@section Scripts {
+    <script>
+        (function () {
+            const panel = document.getElementById("demo-payment");
+            const status = document.getElementById("demo-payment-status");
+            async function checkPayment() {
+                try {
+                    const response = await fetch(panel.dataset.statusUrl, { cache: "no-store" });
+                    if (response.status === 404) {
+                        status.textContent = "Mã QR không còn hiệu lực. Hãy bắt đầu thanh toán lại từ chi tiết đơn hàng.";
+                        return;
+                    }
+                    if (!response.ok) throw new Error("Không kiểm tra được trạng thái thanh toán.");
+                    const result = await response.json();
+                    if (result.paid) {
+                        status.textContent = "Đã nhận xác nhận thanh toán demo. Đang hoàn tất đơn hàng…";
+                        window.location.replace(panel.dataset.successUrl);
+                        return;
+                    }
+                } catch {
+                    status.textContent = "Mất kết nối tạm thời; đang thử kiểm tra lại…";
+                }
+                window.setTimeout(checkPayment, 1500);
+            }
+            checkPayment();
+        })();
+    </script>
+}

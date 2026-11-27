@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using SportZoneWeb.DAL;
 using SportZoneWeb.DTO;
 using SportZoneWeb.Models;
+using SportZoneWeb.Utils;
 
 namespace SportZoneWeb.BLL
 {
@@ -110,7 +111,44 @@ namespace SportZoneWeb.BLL
             return dh != null && dh.MaKH == maKH ? dh : null;
         }
 
+        /// <summary>Gửi email xác nhận đơn tới email tài khoản (chạy nền; lỗi SMTP không ảnh hưởng đơn hàng)</summary>
+        public void GuiEmailXacNhan(int maKH, int maDH)
+        {
+            try
+            {
+                DonHangDTO dh = LayDonHang(maKH, maDH);
+                KhachHangDTO kh = new TaiKhoanDAL().GetKHById(maKH);
+                if (dh == null || kh == null || string.IsNullOrWhiteSpace(kh.Email)) return;
+                EmailService.GuiNen(kh.Email, "[SportZone] Xác nhận đơn hàng #DH" + maDH, EmailService.NoiDungXacNhanDon(dh, kh.HoTen));
+            }
+            catch (Exception ex)
+            {
+                EmailService.Logger?.LogError(ex, "Không gửi được email xác nhận đơn #DH{MaDH}", maDH);
+            }
+        }
+
         public List<DonHangDTO> LichSu(int maKH) => donHangDAL.GetByKhachHang(maKH);
+
+        private readonly LichSuDonHangDAL lichSuDAL = new LichSuDonHangDAL();
+
+        /// <summary>Các mốc đổi trạng thái của đơn (bảng LichSuDonHang, ghi bằng trigger)</summary>
+        public List<LichSuDonHangDTO> LichSuTrangThai(int maDH) => lichSuDAL.GetByDonHang(maDH);
+
+        /// <summary>
+        /// Khách tự hủy đơn: chỉ khi đơn còn "Chờ xác nhận"; hoàn 1 lượt dùng mã giảm giá trong cùng transaction.
+        /// Tồn kho chưa bị trừ ở trạng thái này (Admin trừ khi xác nhận) nên không cần hoàn kho.
+        /// </summary>
+        public void HuyDon(int maKH, int maDH, string lyDo)
+        {
+            lyDo = (lyDo ?? "").Trim();
+            if (lyDo == "") throw new BusinessException("Vui lòng chọn hoặc nhập lý do hủy đơn.");
+            if (lyDo.Length > 200) lyDo = lyDo.Substring(0, 200);
+            DonHangDTO dh = LayDonHang(maKH, maDH);
+            if (dh == null) throw new BusinessException("Không tìm thấy đơn hàng #DH" + maDH + ".");
+            bool ok = DBConnect.RunInTransaction(t => donHangDAL.HuyDon(t, maKH, maDH, "Khách hàng hủy: " + lyDo));
+            if (!ok)
+                throw new BusinessException("Chỉ hủy được đơn đang ở trạng thái \"Chờ xác nhận\". Đơn #DH" + maDH + " hiện: " + dh.TrangThai + ".");
+        }
 
         /// <summary>FR18 - Lịch sử đơn hàng, lọc theo 1 trong 6 trạng thái (rỗng / không hợp lệ = tất cả)</summary>
         public OrdersVM LichSu(int maKH, string trangThai)

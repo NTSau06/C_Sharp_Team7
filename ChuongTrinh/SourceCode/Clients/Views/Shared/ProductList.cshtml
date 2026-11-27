@@ -17,6 +17,9 @@
         if (f.GiaTu.HasValue) qs["GiaTu"] = f.GiaTu.Value.ToString("0");
         if (f.GiaDen.HasValue) qs["GiaDen"] = f.GiaDen.Value.ToString("0");
         if (f.ConHang) qs["ConHang"] = "true";
+        if (!string.IsNullOrEmpty(f.ThuongHieu)) qs["ThuongHieu"] = f.ThuongHieu;
+        if (!string.IsNullOrEmpty(f.KichCo)) qs["KichCo"] = f.KichCo;
+        if (!string.IsNullOrEmpty(f.MauSac)) qs["MauSac"] = f.MauSac;
         if (Model.LaTrangTimKiem && f.MaDM.HasValue) qs["MaDM"] = f.MaDM.Value.ToString();
         if (!string.IsNullOrEmpty(f.SapXep)) qs["SapXep"] = f.SapXep;
         if (soTrangDich > 1) qs["Page"] = soTrangDich.ToString();
@@ -94,6 +97,30 @@
                 }
             </select>
         }
+        <label class="lbl" for="loc-thuong-hieu">Thương hiệu</label>
+        <select name="ThuongHieu" id="loc-thuong-hieu">
+            <option value="">Tất cả thương hiệu</option>
+            @foreach (var th in ThuocTinhSanPham.ThuongHieus)
+            {
+                <option value="@th" selected="@(f.ThuongHieu == th)">@th</option>
+            }
+        </select>
+        <label class="lbl">Kích cỡ</label>
+        <div class="size-list">
+            <label class="size"><input type="radio" name="KichCo" value="" checked="@string.IsNullOrEmpty(f.KichCo)" /><span>Tất cả</span></label>
+            @foreach (var kc in ThuocTinhSanPham.KichCos)
+            {
+                <label class="size"><input type="radio" name="KichCo" value="@kc" checked="@(f.KichCo == kc)" /><span>@kc</span></label>
+            }
+        </div>
+        <label class="lbl">Màu sắc</label>
+        <div class="color-list">
+            <label class="size"><input type="radio" name="MauSac" value="" checked="@string.IsNullOrEmpty(f.MauSac)" /><span>Tất cả</span></label>
+            @foreach (var mau in ThuocTinhSanPham.MauSacs)
+            {
+                <label class="color" title="@mau"><input type="radio" name="MauSac" value="@mau" checked="@(f.MauSac == mau)" /><span class="swatch" style="--m:@ThuocTinhSanPham.MaMau(mau)"></span></label>
+            }
+        </div>
         <label class="check"><input type="checkbox" name="ConHang" value="true" checked="@f.ConHang" /> Chỉ hiện sản phẩm còn hàng</label>
         <button type="submit" class="btn btn-primary btn-block">Áp dụng bộ lọc</button>
         @if (f.DangLoc)

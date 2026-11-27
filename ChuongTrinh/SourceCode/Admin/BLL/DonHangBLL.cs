@@ -44,6 +44,8 @@ namespace SportZoneAdmin.BLL
                 if (dh == null) throw new BusinessException("Đơn hàng không tồn tại.");
                 if (!TrangThaiDonHang.LaChoXuLy(dh.TrangThai))
                     throw new BusinessException("Chỉ xác nhận được đơn ở trạng thái \"Chờ xác nhận\". Đơn #" + maDH + " đang là \"" + dh.TrangThai + "\".");
+                if (LaThanhToanOnline(dh.TenPTTT) && dh.TrangThaiThanhToan != "Đã thanh toán")
+                    throw new BusinessException("Đơn #" + maDH + " chưa được thanh toán qua cổng online nên chưa thể xác nhận.");
                 List<ChiTietDonHangDTO> items = dal.GetChiTiet(t, maDH);
                 if (items.Count == 0) throw new BusinessException("Đơn hàng không có sản phẩm nào.");
                 foreach (ChiTietDonHangDTO it in items)
@@ -54,6 +56,13 @@ namespace SportZoneAdmin.BLL
                 }
                 dal.UpdateTrangThai(t, maDH, TrangThaiDonHang.DaXacNhan, maQTV, null);
             });
+        }
+
+        private static bool LaThanhToanOnline(string tenPhuongThuc)
+        {
+            return !string.IsNullOrEmpty(tenPhuongThuc) &&
+                (tenPhuongThuc.IndexOf("VNPay", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 tenPhuongThuc.IndexOf("MoMo", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         /// <summary>Hủy / từ chối đơn đang chờ: lưu lý do, hoàn lượt mã giảm giá (nếu có)</summary>

@@ -68,23 +68,104 @@ namespace SportZoneWeb.BLL
             if (sl < 1) return KetQua.Loi("Số lượng phải lớn hơn 0.");
             SanPhamDTO sp = sanPhamDAL.GetById(maSP);
             if (sp == null) return KetQua.Loi("Sản phẩm không tồn tại.");
+            int dangCo = gioHangDAL.GetSoLuong(maKH, maSP);
+            return ThemVaoGio(sp, maSP, sl, dangCo, moi => gioHangDAL.Upsert(maKH, maSP, moi));
+        }
+
+        public KetQua ThemVaoGioTam(Dictionary<int, int> gio, int maSP, int sl)
+        {
+            if (sl < 1) return KetQua.Loi("Số lượng phải lớn hơn 0.");
+            int dangCo = gio.TryGetValue(maSP, out int soLuong) ? soLuong : 0;
+            SanPhamDTO sp = sanPhamDAL.GetById(maSP);
+            return ThemVaoGio(sp, maSP, sl, dangCo, moi => gio[maSP] = moi);
+        }
+
+        private KetQua ThemVaoGio(SanPhamDTO sp, int maSP, int sl, int dangCo, Action<int> luuSoLuong)
+        {
+            if (sl < 1) return KetQua.Loi("Số lượng phải lớn hơn 0.");
+            if (sp == null) return KetQua.Loi("Sản phẩm không tồn tại.");
             if (sp.SoLuongTon <= 0) return KetQua.Loi("Sản phẩm \"" + sp.TenSP + "\" đã hết hàng.");
 
-            int dangCo = gioHangDAL.GetSoLuong(maKH, maSP);
             int moi = dangCo + sl;
             int toiDa = Math.Min(sp.SoLuongTon, SoLuongToiDaMoiSanPham);
             if (moi > toiDa)
             {
                 // BR01: chỉ kiểm tra tồn kho, không trừ SoLuongTon. Đưa giỏ về mức tối đa và báo rõ cho khách.
-                if (dangCo != toiDa) gioHangDAL.Upsert(maKH, maSP, toiDa);
+                if (dangCo != toiDa) luuSoLuong(toiDa);
                 string lyDo = moi > sp.SoLuongTon
                     ? ThongBaoVuotTonKho(sp.SoLuongTon)
                     : "Mỗi sản phẩm chỉ đặt tối đa " + SoLuongToiDaMoiSanPham;
                 return KetQua.Loi(lyDo + ". Giỏ hàng hiện có " + toiDa + " \"" + sp.TenSP + "\".");
             }
-            gioHangDAL.Upsert(maKH, maSP, moi);
+            luuSoLuong(moi);
             return KetQua.Ok("Đã thêm vào giỏ hàng: " + sp.TenSP + " (x" + sl + ")");
         }
+
+        public List<GioHangItemVM> LayGioTam(Dictionary<int, int> gio)
+        {
+            var items = new List<GioHangItemVM>();
+            foreach (KeyValuePair<int, int> item in gio)
+            {
+                if (item.Value < 1) continue;
+                List<GioHangItemVM> dong = LayMuaNgay(item.Key, item.Value);
+                if (dong.Count > 0) items.Add(dong[0]);
+            }
+            return items;
+        }
+
+        public KetQua CapNhatGioTam(Dictionary<int, int> gio, int maSP, int sl)
+        {
+            if (sl <= 0)
+            {
+                gio.Remove(maSP);
+                return KetQua.Ok("Đã xóa sản phẩm khỏi giỏ hàng.");
+            }
+
+            SanPhamDTO sp = sanPhamDAL.GetById(maSP);
+            if (sp == null)
+            {
+                gio.Remove(maSP);
+                return KetQua.Loi("Sản phẩm không còn tồn tại nên đã được xóa khỏi giỏ.");
+            }
+            int toiDa = Math.Min(sp.SoLuongTon, SoLuongToiDaMoiSanPham);
+            if (toiDa <= 0)
+            {
+                gio.Remove(maSP);
+                return KetQua.Loi("\"" + sp.TenSP + "\" đã hết hàng nên đã được xóa khỏi giỏ.");
+            }
+            if (sl > toiDa)
+            {
+                gio[maSP] = toiDa;
+                string lyDo = sl > sp.SoLuongTon
+                    ? ThongBaoVuotTonKho(sp.SoLuongTon)
+                    : "Mỗi sản phẩm chỉ đặt tối đa " + SoLuongToiDaMoiSanPham;
+                return KetQua.Loi(lyDo + ". Số lượng \"" + sp.TenSP + "\" đã được điều chỉnh về " + toiDa + ".");
+            }
+            gio[maSP] = sl;
+            return KetQua.Ok("Đã cập nhật số lượng.");
+        }
+
+        public List<string> DieuChinhGioTam(Dictionary<int, int> gio)
+        {
+            var thongBao = new List<string>();
+            foreach (GioHangItemVM item in LayGioTam(gio))
+            {
+                if (item.SoLuongTon <= 0)
+                {
+                    gio.Remove(item.MaSP);
+                    thongBao.Add("\"" + item.TenSP + "\" đã hết hàng và được xóa khỏi giỏ.");
+                }
+                else if (item.SoLuong > Math.Min(item.SoLuongTon, SoLuongToiDaMoiSanPham))
+                {
+                    int toiDa = Math.Min(item.SoLuongTon, SoLuongToiDaMoiSanPham);
+                    gio[item.MaSP] = toiDa;
+                    thongBao.Add("\"" + item.TenSP + "\" chỉ còn " + toiDa + " sản phẩm, số lượng đã được điều chỉnh.");
+                }
+            }
+            return thongBao;
+        }
+
+        public int DemSoLuongGioTam(Dictionary<int, int> gio) => gio.Values.Where(sl => sl > 0).Sum();
 
         public KetQua CapNhatSoLuong(int maKH, int maSP, int sl)
         {

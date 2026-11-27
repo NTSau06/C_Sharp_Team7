@@ -225,6 +225,8 @@ namespace SportZoneAdmin.GUI
                             "trên máy chủ \"" + server + "\".\n\nĐăng nhập: admin / admin123");
                 }
 
+                BaoTrangThai("Đang cập nhật chức năng Web và thanh toán...");
+                DatabaseInitializer.ApplyWebUpdates(server);
                 DBConnect.TestConnection();
                 return server;
             }
